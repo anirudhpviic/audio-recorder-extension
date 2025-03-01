@@ -1,27 +1,37 @@
+let mediaRecorder;
+let audioChunks = [];
+
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "START_RECORDING") {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false },
-    });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    const audioContext = new AudioContext();
-    const source = audioContext.createMediaStreamSource(stream);
-    const processor = audioContext.createScriptProcessor(4096, 1, 1);
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
 
-    source.connect(processor);
-    processor.connect(audioContext.destination);
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunks.push(event.data);
+      }
+    };
 
-    processor.onaudioprocess = (event) => {
-      const inputData = event.inputBuffer.getChannelData(0);
-      console.log("Captured audio:", inputData);
-      chrome.runtime.sendMessage({ type: "AUDIO_DATA", data: inputData });
+    mediaRecorder.onstop = async () => {
+      console.log("Recording stopped");
+      const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+      audioChunks = [];
+
+      // Convert Blob to Base64
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      reader.onloadend = () => {
+        const base64data = reader.result.split(",")[1]; // Remove data URL prefix
+        chrome.runtime.sendMessage({ type: "AUDIO_BLOB", data: base64data });
+      };
     };
   }
-});
 
-chrome.runtime.onMessage.addListener((request) => {
   if (request.action === "STOP_RECORDING") {
-    document.body.style.backgroundColor = "white";
-    console.log("Recording stopped");
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+    }
   }
 });

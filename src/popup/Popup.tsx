@@ -1,8 +1,9 @@
 // @ts-nocheck
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Popup: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState<string | null>(null);
 
   const handleStartRecording = () => {
     setIsRecording(true);
@@ -17,6 +18,28 @@ const Popup: React.FC = () => {
       chrome.tabs.sendMessage(tabs[0].id, { action: "STOP_RECORDING" });
     });
   };
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === "AUDIO_BLOB") {
+        console.log("final record");
+        const base64 = message.data;
+
+        // Convert Base64 to Blob
+        const byteCharacters = atob(base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "audio/wav" });
+
+        // Create URL for playback & download
+        const url = URL.createObjectURL(blob);
+        setAudioURL(url);
+      }
+    });
+  }, []);
 
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
@@ -35,6 +58,20 @@ const Popup: React.FC = () => {
         >
           Stop Recording
         </button>
+      )}
+      {audioURL && (
+        <div style={{ marginTop: "20px" }}>
+          <audio controls>
+            <source src={audioURL} type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+          <br />
+          <a href={audioURL} download="meeting_audio.wav">
+            <button className="px-4 py-2 text-white bg-blue-500">
+              Download Recording
+            </button>
+          </a>
+        </div>
       )}
     </div>
   );

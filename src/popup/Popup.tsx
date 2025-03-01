@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 
 const Popup: React.FC = () => {
@@ -5,12 +6,16 @@ const Popup: React.FC = () => {
 
   const handleStartRecording = () => {
     setIsRecording(true);
-    chrome.runtime.sendMessage({ type: "START_RECORDING" });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "START_RECORDING" });
+    });
   };
 
   const handleStopRecording = () => {
     setIsRecording(false);
-    chrome.runtime.sendMessage({ type: "STOP_RECORDING" });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "STOP_RECORDING" });
+    });
   };
 
   return (

@@ -1,37 +1,74 @@
 let mediaRecorder;
-let audioChunks = [];
+let recordedChunks = [];
+
+function blobToBase64(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob); // Convert Blob to Base64
+    reader.onloadend = () => resolve(reader.result);
+  });
+}
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  if (request.action === "START_RECORDING") {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  if (request.action === "micCaptureStart") {
+    startRecording();
+  } else if (request.action === "micCaptureStop") {
+    const chunks = await stopRecording();
+    const blob = new Blob(chunks, { type: "audio/webm" });
+    const base64Data = await blobToBase64(blob);
+
+    if (mediaRecorder.state === "inactive") {
+      chrome.runtime.sendMessage({
+        type: "micRecordingStopped",
+        data: base64Data,
+      });
+    }
+  }
+  return true;
+});
+
+async function startRecording() {
+  console.log("start recording");
+  try {
+    const stream = await new Promise((resolve, reject) => {
+      navigator.mediaDevices
+        .getUserMedia({
+          audio: true,
+          video: false,
+        })
+        .then((stream) => {
+          resolve(stream);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
 
     mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
 
     mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
-        audioChunks.push(event.data);
+        recordedChunks.push(event.data);
+        console.log("data:", event.data);
       }
     };
 
-    mediaRecorder.onstop = async () => {
-      console.log("Recording stopped");
-      const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-      audioChunks = [];
+    mediaRecorder.start();
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-      // Convert Blob to Base64
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      reader.onloadend = () => {
-        const base64data = reader.result.split(",")[1]; // Remove data URL prefix
-        chrome.runtime.sendMessage({ type: "AUDIO_BLOB", data: base64data });
+async function stopRecording() {
+  return new Promise((resolve) => {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.onstop = () => {
+        resolve(recordedChunks);
       };
-    };
-  }
-
-  if (request.action === "STOP_RECORDING") {
-    if (mediaRecorder) {
       mediaRecorder.stop();
+      console.log("recordedChunks:", recordedChunks);
+    } else {
+      resolve([]);
     }
-  }
-});
+  });
+}

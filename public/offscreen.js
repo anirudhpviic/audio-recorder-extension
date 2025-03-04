@@ -80,7 +80,3 @@ async function getTabMedia(streamId) {
     },
   });
 }
-
-async function getMicMedia() {
-  return await navigator.mediaDevices.getUserMedia({ audio: true });
-}

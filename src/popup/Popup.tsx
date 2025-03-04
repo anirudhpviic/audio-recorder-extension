@@ -170,7 +170,9 @@ const Popup = () => {
       >
         click
       </button>
+      mic:
       {micUrl && <audio controls src={micUrl} />}
+      tab:
       {tabUrl && <audio controls src={tabUrl} />}
     </div>
   );

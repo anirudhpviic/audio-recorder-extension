@@ -12,7 +12,8 @@
     "scripting",
     "storage",
     "tabCapture",
-    "downloads"
+    "downloads",
+    "offscreen"
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
@@ -21,7 +22,10 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["src/content/content.js"]
+      "js": [
+        "src/content/mic-content-script.js",
+        "src/content/tab-content-script.js"
+      ]
     }
   ]
 }

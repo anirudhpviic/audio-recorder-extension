@@ -17,12 +17,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     const blob = new Blob(chunks, { type: "audio/webm" });
     const base64Data = await blobToBase64(blob);
 
-    if (mediaRecorder.state === "inactive") {
-      chrome.runtime.sendMessage({
-        type: "micRecordingStopped",
-        data: base64Data,
-      });
-    }
+    chrome.runtime.sendMessage({
+      type: "micRecordingStopped",
+      data: base64Data,
+    });
   }
   return true;
 });

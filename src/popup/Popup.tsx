@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+import { useEffect, useState } from "react";
+
 // import { useEffect, useState } from "react";
 
 // const Popup = () => {
@@ -110,16 +112,66 @@
 // export default Popup;
 
 const Popup = () => {
+  const [tabUrl, setTabUrl] = useState("");
+  const [micUrl, setMicUrl] = useState("");
+
   const handleClick = async () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.runtime.sendMessage({ type: "click", tabId: tabs[0].id });
     });
   };
 
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener(
+      async (message, sender, sendResponse) => {
+        if (message.type === "micAndTabRecordingStopped") {
+          console.log("Recording stopped");
+          const micBlob = await fetch(message.data.micAudioBuffer)
+            .then((res) => res.blob())
+            .then((blob) => {
+              return blob;
+            })
+            .catch((error) => {
+              console.error("Error converting Base64 to Blob:", error);
+            });
+
+          const tabBlob = await fetch(message.data.tabAudioBuffer)
+            .then((res) => res.blob())
+            .then((blob) => {
+              return blob;
+            })
+            .catch((error) => {
+              console.error("Error converting Base64 to Blob:", error);
+            });
+
+          console.log("mic audio blob", micBlob);
+          console.log("tab audio Blob", tabBlob);
+
+          setMicUrl(URL.createObjectURL(micBlob));
+          setTabUrl(URL.createObjectURL(tabBlob));
+        }
+      }
+    );
+  }, []);
+
   return (
-    <div>
+    <div
+      style={{
+        width: "300px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+      }}
+    >
       Popup
-      <button onClick={handleClick}>click</button>
+      <button
+        style={{ padding: "10px", backgroundColor: "green" }}
+        onClick={handleClick}
+      >
+        click
+      </button>
+      {micUrl && <audio controls src={micUrl} />}
+      {tabUrl && <audio controls src={tabUrl} />}
     </div>
   );
 };

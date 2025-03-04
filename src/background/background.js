@@ -2,6 +2,9 @@ console.log("loaded...");
 let micAudioBlob;
 let tabAudioBlob;
 
+let micAudioBuffer;
+let tabAudioBuffer;
+
 // chrome.action.onClicked.addListener(async (tab) => {
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "click") {
@@ -55,44 +58,74 @@ chrome.runtime.onMessage.addListener(async (message) => {
   } else if (message.type === "micRecordingStopped") {
     console.log("Recording stopped", message);
 
-    try {
-      micAudioBlob = await fetch(message.data)
-        .then((res) => res.blob())
-        .then((blob) => {
-          console.log("mic audio blob", blob);
-          return blob;
-        })
-        .catch((error) => {
-          console.error("Error converting Base64 to Blob:", error);
-        });
-      console.log("micAudioBlob", micAudioBlob);
-    } catch (error) {
-      console.error("Error fetching audio blob:", error);
+    micAudioBuffer = message.data;
+
+    if (micAudioBuffer && tabAudioBuffer) {
+      chrome.runtime.sendMessage({
+        type: "micAndTabRecordingStopped",
+        data: {
+          micAudioBuffer,
+          tabAudioBuffer,
+        },
+      });
+
+      micAudioBuffer = undefined;
+      tabAudioBuffer = undefined;
     }
 
-    if (micAudioBlob && tabAudioBlob) {
-      console.log("both blobs", micAudioBlob, tabAudioBlob);
-    }
+    // try {
+    //   micAudioBlob = await fetch(message.data)
+    //     .then((res) => res.blob())
+    //     .then((blob) => {
+    //       console.log("mic audio blob", blob);
+    //       return blob;
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error converting Base64 to Blob:", error);
+    //     });
+    //   console.log("micAudioBlob", micAudioBlob);
+    // } catch (error) {
+    //   console.error("Error fetching audio blob:", error);
+    // }
+
+    // if (micAudioBlob && tabAudioBlob) {
+    //   console.log("both blobs", micAudioBlob, tabAudioBlob);
+    // }
   } else if (message.type === "tabRecordingStopped") {
     console.log("tabRecordingStopped", message);
 
-    try {
-      tabAudioBlob = await fetch(message.data)
-        .then((res) => res.blob())
-        .then((blob) => {
-          console.log("tab audio blob", blob);
-          return blob;
-        })
-        .catch((error) => {
-          console.error("Error converting Base64 to Blob:", error);
-        });
-      console.log("tabAudioBlob", micAudioBlob);
-    } catch (error) {
-      console.error("Error fetching audio blob:", error);
+    tabAudioBuffer = message.data;
+
+    if (micAudioBuffer && tabAudioBuffer) {
+      chrome.runtime.sendMessage({
+        type: "micAndTabRecordingStopped",
+        data: {
+          micAudioBuffer,
+          tabAudioBuffer,
+        },
+      });
+
+      micAudioBuffer = undefined;
+      tabAudioBuffer = undefined;
     }
 
-    if (micAudioBlob && tabAudioBlob) {
-      console.log("both blobs", micAudioBlob, tabAudioBlob);
-    }
+    // try {
+    //   tabAudioBlob = await fetch(message.data)
+    //     .then((res) => res.blob())
+    //     .then((blob) => {
+    //       console.log("tab audio blob", blob);
+    //       return blob;
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error converting Base64 to Blob:", error);
+    //     });
+    //   console.log("tabAudioBlob", micAudioBlob);
+    // } catch (error) {
+    //   console.error("Error fetching audio blob:", error);
+    // }
+
+    // if (micAudioBlob && tabAudioBlob) {
+    //   console.log("both blobs", micAudioBlob, tabAudioBlob);
+    // }
   }
 });

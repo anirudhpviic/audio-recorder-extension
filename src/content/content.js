@@ -11,18 +11,25 @@ function blobToBase64(blob) {
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "micCaptureStart") {
+    console.log("micCaptureStart");
     startRecording();
   } else if (request.action === "micCaptureStop") {
+    console.log("micCaptureStop");
     const chunks = await stopRecording();
     const blob = new Blob(chunks, { type: "audio/webm" });
-    const base64Data = await blobToBase64(blob);
 
-    if (mediaRecorder.state === "inactive") {
-      chrome.runtime.sendMessage({
-        type: "micRecordingStopped",
-        data: base64Data,
-      });
-    }
+    console.log("blob", blob);
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+
+    // const base64Data = await blobToBase64(blob);
+
+    // if (mediaRecorder.state === "inactive") {
+    //   chrome.runtime.sendMessage({
+    //     type: "micRecordingStopped",
+    //     data: base64Data,
+    //   });
+    // }
   }
   return true;
 });

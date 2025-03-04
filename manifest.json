@@ -6,14 +6,7 @@
   "action": {
     "default_popup": "./index.html"
   },
-  "permissions": [
-    "tabs",
-    "activeTab",
-    "scripting",
-    "storage",
-    "tabCapture",
-    "downloads"
-  ],
+  "permissions": ["tabCapture", "offscreen", "scripting", "activeTab", "tabs"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "src/background/background.js"

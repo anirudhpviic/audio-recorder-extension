@@ -116,26 +116,10 @@ const Popup = () => {
     });
   };
 
-  // const handleStop = async () => {
-  //   console.log("fu");
-  //   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //     chrome.tabs.sendMessage(tabs[0].id, { action: "micCaptureStop" });
-  //   });
-  // };
-
-  // const handleStart = async () => {
-  //   console.log("fu");
-  //   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //     chrome.tabs.sendMessage(tabs[0].id, { action: "micCaptureStart" });
-  //   });
-  // };
-
   return (
     <div>
       Popup
       <button onClick={handleClick}>click</button>
-      {/* <button onClick={handleStart}>start</button>
-      <button onClick={handleStop}>stop</button> */}
     </div>
   );
 };

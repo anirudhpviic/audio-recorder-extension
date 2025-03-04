@@ -23,9 +23,9 @@ chrome.runtime.onMessage.addListener(async (message) => {
     }
     if (recording) {
       // stop recording
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "micCaptureStop" });
-      });
+      // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(message.tabId, { action: "micCaptureStop" });
+      // });
 
       chrome.runtime.sendMessage({
         type: "stop-recording",
@@ -42,9 +42,9 @@ chrome.runtime.onMessage.addListener(async (message) => {
     // Send the stream ID to the offscreen document to start recording.
 
     // start-recording
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: "micCaptureStart" });
-    });
+    // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.sendMessage(message.tabId, { action: "micCaptureStart" });
+    // });
 
     chrome.runtime.sendMessage({
       type: "start-recording",
@@ -69,6 +69,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
     } catch (error) {
       console.error("Error fetching audio blob:", error);
     }
+
+    if (micAudioBlob && tabAudioBlob) {
+      console.log("both blobs", micAudioBlob, tabAudioBlob);
+    }
   } else if (message.type === "tabRecordingStopped") {
     console.log("tabRecordingStopped", message);
 
@@ -85,6 +89,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
       console.log("tabAudioBlob", micAudioBlob);
     } catch (error) {
       console.error("Error fetching audio blob:", error);
+    }
+
+    if (micAudioBlob && tabAudioBlob) {
+      console.log("both blobs", micAudioBlob, tabAudioBlob);
     }
   }
 });

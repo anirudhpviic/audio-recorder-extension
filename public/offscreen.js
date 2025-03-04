@@ -41,7 +41,7 @@ async function startRecording(streamId) {
   recorder.onstop = async () => {
     const blob = new Blob(data, { type: "audio/webm" });
 
-    window.open(URL.createObjectURL(blob), "_blank");
+    // window.open(URL.createObjectURL(blob), "_blank");
 
     const base64Data = await blobToBase64(blob);
 

@@ -5,9 +5,12 @@ let tabAudioBlob;
 let micAudioBuffer;
 let tabAudioBuffer;
 
+let tabId;
+
 // chrome.action.onClicked.addListener(async (tab) => {
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "click") {
+    tabId = message.tabId;
     const existingContexts = await chrome.runtime.getContexts({});
     let recording = false;
     const offscreenDocument = existingContexts.find(
@@ -54,6 +57,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       target: "offscreen",
       data: streamId,
     });
+
     chrome.action.setIcon({ path: "icons/recording.png" });
   } else if (message.type === "micRecordingStopped") {
     console.log("Recording stopped", message);
@@ -127,5 +131,14 @@ chrome.runtime.onMessage.addListener(async (message) => {
     // if (micAudioBlob && tabAudioBlob) {
     //   console.log("both blobs", micAudioBlob, tabAudioBlob);
     // }
+  } else if (message.type === "MIC_STATUS") {
+    if (tabId) {
+      console.log("MIC_STATUS", message.muted);
+
+      chrome.tabs.sendMessage(tabId, {
+        action: "MIC_STATUS",
+        muted: message.muted,
+      });
+    }
   }
 });

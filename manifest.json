@@ -14,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["src/content/content.js"]
+      "js": ["src/content/mic-content.js","src/content/mute-check-content.js"]
     }
   ]
 }

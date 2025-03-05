@@ -78,5 +78,6 @@ async function getTabMedia(streamId) {
         chromeMediaSourceId: streamId,
       },
     },
+    video: false,
   });
 }

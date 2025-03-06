@@ -1,6 +1,5 @@
 console.log("loaded...");
-let micAudioBlob;
-let tabAudioBlob;
+import axios from "axios";
 
 let micAudioBuffer;
 let tabAudioBuffer;
@@ -65,13 +64,19 @@ chrome.runtime.onMessage.addListener(async (message) => {
     micAudioBuffer = message.data;
 
     if (micAudioBuffer && tabAudioBuffer) {
-      chrome.runtime.sendMessage({
-        type: "micAndTabRecordingStopped",
-        data: {
-          micAudioBuffer,
-          tabAudioBuffer,
-        },
-      });
+      //
+
+      //
+
+      // chrome.runtime.sendMessage({
+      //   type: "micAndTabRecordingStopped",
+      //   data: {
+      //     micAudioBuffer,
+      //     tabAudioBuffer,
+      //   },
+      // });
+
+      await sendToServer();
 
       micAudioBuffer = undefined;
       tabAudioBuffer = undefined;
@@ -101,13 +106,15 @@ chrome.runtime.onMessage.addListener(async (message) => {
     tabAudioBuffer = message.data;
 
     if (micAudioBuffer && tabAudioBuffer) {
-      chrome.runtime.sendMessage({
-        type: "micAndTabRecordingStopped",
-        data: {
-          micAudioBuffer,
-          tabAudioBuffer,
-        },
-      });
+      // chrome.runtime.sendMessage({
+      //   type: "micAndTabRecordingStopped",
+      //   data: {
+      //     micAudioBuffer,
+      //     tabAudioBuffer,
+      //   },
+      // });
+
+      await sendToServer();
 
       micAudioBuffer = undefined;
       tabAudioBuffer = undefined;
@@ -142,3 +149,42 @@ chrome.runtime.onMessage.addListener(async (message) => {
     }
   }
 });
+
+async function sendToServer() {
+  console.log("Recording stopped");
+  const micBlob = await fetch(micAudioBuffer)
+    .then((res) => res.blob())
+    .then((blob) => {
+      return blob;
+    })
+    .catch((error) => {
+      console.error("Error converting Base64 to Blob:", error);
+    });
+
+  const tabBlob = await fetch(tabAudioBuffer)
+    .then((res) => res.blob())
+    .then((blob) => {
+      return blob;
+    })
+    .catch((error) => {
+      console.error("Error converting Base64 to Blob:", error);
+    });
+
+  console.log("mic audio blob", micBlob);
+  console.log("tab audio Blob", tabBlob);
+
+  const formData = new FormData();
+  // @ts-ignore
+  formData.append("micAudio", micBlob, "micAudio.webm");
+  // @ts-ignore
+  formData.append("tabAudio", tabBlob, "tabAudio.webm");
+
+  try {
+    const res = await axios.post("http://localhost:3000/audio", formData);
+    console.log("res", res);
+  } catch (error) {
+    console.error("Error uploading audio:", error);
+  } finally {
+    return;
+  }
+}

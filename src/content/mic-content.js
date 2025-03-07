@@ -6,24 +6,17 @@ let currentStream; // Track current stream to clean up later
 function blobToBase64(blob) {
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.readAsDataURL(blob); // Convert Blob to Base64
+    reader.readAsDataURL(blob);
     reader.onloadend = () => resolve(reader.result);
   });
 }
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  if (request.action === "micCaptureStart") {
-    console.log("micCaptureStart");
+  if (request.action === "mic-recording-start") {
     startRecording();
-  } else if (request.action === "micCaptureStop") {
-    console.log("micCaptureStop");
+  } else if (request.action === "mic-recording-stop") {
     const chunks = await stopRecording();
     const blob = new Blob(chunks, { type: "audio/webm" });
-
-    console.log("chunks", chunks);
-    console.log("blob", blob);
-
-    window.open(URL.createObjectURL(blob), "_blank");
 
     const base64Data = await blobToBase64(blob);
 
@@ -31,7 +24,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     recordedChunks = [];
 
     chrome.runtime.sendMessage({
-      type: "micRecordingStopped",
+      type: "mic-recording-stopped",
       data: base64Data,
     });
   } else if (request.action === "MIC_STATUS") {
@@ -91,7 +84,7 @@ async function stopRecording() {
   });
 }
 
-// 🎵 Create a silent audio stream (no sound)
+// Create a silent audio stream (no sound)
 function createSilentAudioStream() {
   const audioContext = new AudioContext();
   const destination = audioContext.createMediaStreamDestination();

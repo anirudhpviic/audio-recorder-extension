@@ -1,7 +1,7 @@
 function blobToBase64(blob) {
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.readAsDataURL(blob); // Convert Blob to Base64
+    reader.readAsDataURL(blob);
     reader.onloadend = () => resolve(reader.result);
   });
 }
@@ -41,12 +41,10 @@ async function startRecording(streamId) {
   recorder.onstop = async () => {
     const blob = new Blob(data, { type: "audio/webm" });
 
-    // window.open(URL.createObjectURL(blob), "_blank");
-
     const base64Data = await blobToBase64(blob);
 
     chrome.runtime.sendMessage({
-      type: "tabRecordingStopped",
+      type: "tab-recording-stopped",
       data: base64Data,
     });
 

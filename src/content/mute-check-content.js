@@ -1,25 +1,41 @@
-// Detect changes in mute button
 let isMuted = true;
 
-function checkMuteStatus() {
+// Function to check the initial mute status
+function checkInitialMuteStatus() {
   const muteButton =
     document.querySelector('[aria-label="Turn on microphone"]') ||
     document.querySelector('[aria-label="Turn off microphone"]');
 
   if (muteButton) {
-    if (
-      isMuted !==
-      muteButton.getAttribute("aria-label").includes("Turn on microphone")
-    ) {
-      // Send mute status to the background script
-      chrome.runtime.sendMessage({
-        type: "MIC_STATUS",
-        muted: isMuted,
-      });
-      isMuted = !isMuted;
-    }
+    isMuted = muteButton
+      .getAttribute("aria-label")
+      .includes("Turn on microphone");
+
+    // Send initial mute status to the background script
+    chrome.runtime.sendMessage({
+      type: "MIC_STATUS",
+      muted: isMuted,
+    });
   }
 }
 
-// Monitor for changes every 500ms
-setInterval(checkMuteStatus, 500);
+// Check the mute status when the script loads
+checkInitialMuteStatus();
+
+document.addEventListener("click", (event) => {
+  const muteButton =
+    document.querySelector('[aria-label="Turn on microphone"]') ||
+    document.querySelector('[aria-label="Turn off microphone"]');
+
+  if (muteButton && muteButton.contains(event.target)) {
+    isMuted = muteButton
+      .getAttribute("aria-label")
+      .includes("Turn on microphone");
+
+    // Send mute status to the background script
+    chrome.runtime.sendMessage({
+      type: "MIC_STATUS",
+      muted: isMuted,
+    });
+  }
+});

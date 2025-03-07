@@ -5,6 +5,7 @@ import axios from "axios";
 let micAudioBuffer;
 let tabAudioBuffer;
 let tabId;
+let isMuted = true;
 
 const startOrStopRecording = async (message) => {
   tabId = message.tabId;
@@ -42,7 +43,10 @@ const startOrStopRecording = async (message) => {
   });
 
   // start-recording
-  chrome.tabs.sendMessage(message.tabId, { action: "mic-recording-start" });
+  chrome.tabs.sendMessage(message.tabId, {
+    action: "mic-recording-start",
+    isMuted,
+  });
 
   chrome.runtime.sendMessage({
     type: "start-recording",
@@ -108,11 +112,12 @@ chrome.runtime.onMessage.addListener(async (message) => {
       tabAudioBuffer = undefined;
     }
   } else if (message.type === "MIC_STATUS") {
-    console.log("message.muted", message.muted);
+    console.log("message.muted", message.isMuted);
+    isMuted = message.isMuted;
     if (tabId) {
       chrome.tabs.sendMessage(tabId, {
         action: "MIC_STATUS",
-        muted: message.muted,
+        isMuted: message.isMuted,
       });
     }
   }

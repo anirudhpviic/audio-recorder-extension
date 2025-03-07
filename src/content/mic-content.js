@@ -13,6 +13,8 @@ function blobToBase64(blob) {
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "mic-recording-start") {
+    console.log("request.isMuted", request.isMuted);
+    isMuted = request.isMuted;
     startRecording();
   } else if (request.action === "mic-recording-stop") {
     const chunks = await stopRecording();
@@ -28,16 +30,16 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       data: base64Data,
     });
   } else if (request.action === "MIC_STATUS") {
-    if (request.muted !== isMuted) {
-      isMuted = request.muted;
-      await stopRecording();
-      await startRecording();
-    }
+    isMuted = request.isMuted;
+    console.log("mic status request.isMuted:", request.isMuted);
+    await stopRecording();
+    await startRecording();
   }
   return true;
 });
 async function startRecording() {
   console.log("start recording");
+  console.log("isMuted", isMuted);
   try {
     // Stop any existing tracks before creating new stream
     if (currentStream) {

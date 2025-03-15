@@ -44,13 +44,12 @@ const Popup = () => {
   };
 
   useEffect(() => {
-    // Listen for messages from success.html
+    // Listen for login successful
     chrome.runtime.onMessage.addListener(async (message) => {
       if (message.type === "LOGIN_SUCCESS") {
         chrome.storage.local.get(["user"], (result) => {
           if (result.user) {
             setUser(result.user);
-            console.log("User:", result.user);
           } else {
             console.log("No user found in storage.");
           }
@@ -62,8 +61,8 @@ const Popup = () => {
   return (
     <div
       style={{
-        width: "300px",
-        height: "300px",
+        width: "500px",
+        height: "600px",
       }}
     >
       {!user.email ? (

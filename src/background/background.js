@@ -81,7 +81,10 @@ async function sendToServer() {
   formData.append("tabAudio", tabBlob, "tabAudio.webm");
 
   try {
-    const res = await axios.post("http://localhost:3000/audio", formData);
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URI}/audio`,
+      formData
+    );
     console.log("res", res);
   } catch (error) {
     console.error("Error uploading audio:", error);

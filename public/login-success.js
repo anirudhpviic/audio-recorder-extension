@@ -10,5 +10,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   chrome.runtime.sendMessage({ type: "LOGIN_SUCCESS" });
 
-  setTimeout(() => window.close(), 500);
+  setTimeout(() => window.close(), 200);
 });

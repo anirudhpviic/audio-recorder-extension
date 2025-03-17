@@ -7,6 +7,10 @@ let tabAudioBuffer;
 let tabId;
 let isMuted = true;
 
+let isRecording = false;
+let recordingTime = 0;
+let recordingInterval;
+
 const startOrStopRecording = async (message) => {
   tabId = message.tabId;
   const existingContexts = await chrome.runtime.getContexts({});
@@ -34,6 +38,11 @@ const startOrStopRecording = async (message) => {
       target: "offscreen",
     });
 
+    isRecording = false;
+
+    clearInterval(recordingInterval);
+    recordingTime = 0;
+
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
   }
@@ -53,6 +62,12 @@ const startOrStopRecording = async (message) => {
     target: "offscreen",
     data: streamId,
   });
+
+  isRecording = true;
+
+  recordingInterval = setInterval(() => {
+    recordingTime += 1;
+  }, 1000);
 
   chrome.action.setIcon({ path: "icons/recording.png" });
 };
@@ -123,5 +138,11 @@ chrome.runtime.onMessage.addListener(async (message) => {
         isMuted: message.isMuted,
       });
     }
+  } else if (message.type === "get-recording-status") {
+    chrome.runtime.sendMessage({
+      type: "return-recording-status",
+      isRecording,
+      recordingTime,
+    });
   }
 });

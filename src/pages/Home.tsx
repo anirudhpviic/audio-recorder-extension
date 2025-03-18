@@ -20,6 +20,10 @@ const Home = () => {
     });
   };
 
+  const handleMeetIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMeetId(event.target.value);
+  };
+
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, () => {
       chrome.runtime.sendMessage({ type: "get-recording-status" });
@@ -70,6 +74,7 @@ const Home = () => {
         recordingTime={recordingTime}
         meetId={meetId}
         handleClick={handleClick}
+        handleMeetIdChange={handleMeetIdChange}
       />
     </div>
   );

@@ -1,10 +1,12 @@
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Pencil, Save } from "lucide-react";
+import { useState } from "react";
 
 type MeetRecorderProps = {
   isRecording: boolean;
   recordingTime: number;
   meetId: string;
   handleClick: () => Promise<void>;
+  handleMeetIdChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const MeetRecorder = ({
@@ -12,7 +14,9 @@ const MeetRecorder = ({
   recordingTime,
   meetId,
   handleClick,
+  handleMeetIdChange,
 }: MeetRecorderProps) => {
+  const [isInputDisable, setIsInputDisable] = useState(true);
   return (
     <div className="flex items-center justify-between p-3 bg-white border-b border-gray-200">
       <div className="flex items-center">
@@ -31,15 +35,23 @@ const MeetRecorder = ({
         </div>
         <div className="flex items-center">
           <span className="mx-1 font-medium text-gray-800">Meet –</span>
-          <span className="mx-1 text-gray-600">{meetId}</span>
-          <button className="p-1 ml-1">
-            <svg
-              className="w-4 h-4 text-gray-600"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-            </svg>
+          <input
+            type="text"
+            value={meetId}
+            className={`mx-1 text-gray-600 border-none outline-none ${isInputDisable ? "bg-white" :"bg-gray-100"}`}
+            disabled={isInputDisable}
+            onChange={handleMeetIdChange}
+            
+          />
+          <button
+            className="p-1 ml-1"
+            onClick={() => setIsInputDisable((prev) => !prev)}
+          >
+            {isInputDisable ? (
+              <Pencil className="w-4 h-4 text-gray-600" />
+            ) : (
+              <Save className="w-4 h-4 text-green-600" />
+            )}
           </button>
         </div>
       </div>

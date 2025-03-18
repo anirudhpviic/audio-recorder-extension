@@ -1,71 +1,76 @@
 import { useEffect, useRef, useState } from "react";
-import GoogleMeetHeader from "../components/MeetHeader";
+import MeetRecorder from "../components/MeetRecorder";
 
 const Home = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [meetId, setMeetId] = useState("");
 
-  // const recordingInterval = useRef<any>(null); // Use ref
+  const recordingInterval = useRef<any>(null); // Use ref
 
-  // const handleClick = async () => {
-  //   setIsRecording(!isRecording);
-  //   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //     chrome.runtime.sendMessage({ type: "click", tabId: tabs[0].id });
-  //   });
-  // };
+  const handleClick = async () => {
+    setIsRecording(!isRecording);
 
-  // useEffect(() => {
-  //   chrome.tabs.query({ active: true, currentWindow: true }, () => {
-  //     chrome.runtime.sendMessage({ type: "get-recording-status" });
-  //   });
-  //   chrome.runtime.onMessage.addListener((message) => {
-  //     if (message.type === "return-recording-status") {
-  //       setIsRecording(message.isRecording);
-  //       setRecordingTime(message.recordingTime);
-  //     }
-  //   });
-  // }, []);
+    if (!isRecording) {
+      setRecordingTime(0);
+    }
 
-  // useEffect(() => {
-  //   console.log("isRecording:::", isRecording);
-  //   if (isRecording) {
-  //     recordingInterval.current = setInterval(() => {
-  //       setRecordingTime((prevTime) => prevTime + 1);
-  //     }, 1000);
-  //   } else {
-  //     if (recordingInterval.current) {
-  //       clearInterval(recordingInterval.current);
-  //       recordingInterval.current = null;
-  //     }
-  //   }
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.runtime.sendMessage({ type: "click", tabId: tabs[0].id });
+    });
+  };
 
-  //   return () => {
-  //     if (recordingInterval.current) {
-  //       clearInterval(recordingInterval.current);
-  //     }
-  //   };
-  // }, [isRecording]);
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, () => {
+      chrome.runtime.sendMessage({ type: "get-recording-status" });
+    });
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === "return-recording-status") {
+        setIsRecording(message.isRecording);
+        setRecordingTime(message.recordingTime);
+      }
+    });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      // @ts-ignore
+      chrome.tabs.sendMessage(tabs[0].id, { action: "get-meeting-id" });
+    });
+
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === "return-meeting-id") {
+        setMeetId(message.data);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log("isRecording:::", isRecording);
+    if (isRecording) {
+      recordingInterval.current = setInterval(() => {
+        setRecordingTime((prevTime) => prevTime + 1);
+      }, 1000);
+    } else {
+      if (recordingInterval.current) {
+        clearInterval(recordingInterval.current);
+        recordingInterval.current = null;
+      }
+    }
+
+    return () => {
+      if (recordingInterval.current) {
+        clearInterval(recordingInterval.current);
+      }
+    };
+  }, [isRecording]);
 
   return (
-    <div
-      style={{
-        width: "500px",
-        height: "600px",
-      }}
-    >
-      <GoogleMeetHeader/>
-      {/* <h1>Recording Time: {recordingTime}</h1> */}
-      {/* {isRecording ? (
-        <button onClick={handleClick} className="p-2 bg-red-500">
-          Stop Recording
-        </button>
-      ) : (
-        <button onClick={handleClick} className="p-2 bg-green-500">
-          Start Recording
-        </button>
-      )} */}
-
-      
+    <div className="h-[600px] w-[500px] ">
+      <MeetRecorder
+        isRecording={isRecording}
+        recordingTime={recordingTime}
+        meetId={meetId}
+        handleClick={handleClick}
+      />
     </div>
   );
 };

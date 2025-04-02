@@ -11,6 +11,8 @@ let isRecording = false;
 let recordingTime = 0;
 let recordingInterval;
 
+let meetId;
+
 const startOrStopRecording = async (message) => {
   tabId = message.tabId;
   const existingContexts = await chrome.runtime.getContexts({});
@@ -94,6 +96,7 @@ async function sendToServer() {
   const formData = new FormData();
   formData.append("micAudio", micBlob, "micAudio.webm");
   formData.append("tabAudio", tabBlob, "tabAudio.webm");
+  formData.append("meetId", meetId);
 
   try {
     const res = await axios.post(
@@ -144,5 +147,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       isRecording,
       recordingTime,
     });
+  } else if (message.type === "set-meeting-id") {
+    meetId = message.data;
   }
 });

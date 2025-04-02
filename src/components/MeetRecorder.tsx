@@ -1,12 +1,12 @@
 import { Mic, MicOff, Pencil, Save } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type MeetRecorderProps = {
   isRecording: boolean;
   recordingTime: number;
   meetId: string;
   handleClick: () => Promise<void>;
-  handleMeetIdChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  setMeetId: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const MeetRecorder = ({
@@ -14,9 +14,15 @@ const MeetRecorder = ({
   recordingTime,
   meetId,
   handleClick,
-  handleMeetIdChange,
+  setMeetId,
 }: MeetRecorderProps) => {
   const [isInputDisable, setIsInputDisable] = useState(true);
+  const [meetingId, setMeetingId] = useState("");
+
+  useEffect(() => {
+    setMeetingId(meetId);
+  }, [meetId]);
+
   return (
     <div className="flex items-center justify-between p-3 bg-white border-b border-gray-200">
       <div className="flex items-center">
@@ -37,15 +43,23 @@ const MeetRecorder = ({
           <span className="mx-1 font-medium text-gray-800">Meet –</span>
           <input
             type="text"
-            value={meetId}
-            className={`mx-1 text-gray-600 border-none outline-none ${isInputDisable ? "bg-white" :"bg-gray-100"}`}
+            value={meetingId}
+            className={`mx-1 px-2 py-1 text-gray-600 outline-none bg-gray-50 ${
+              isInputDisable ? "border-none" : "border border-black"
+            }`}
             disabled={isInputDisable}
-            onChange={handleMeetIdChange}
-            
+            onChange={(e) => setMeetingId(e.target.value)}
           />
           <button
             className="p-1 ml-1"
-            onClick={() => setIsInputDisable((prev) => !prev)}
+            onClick={() => {
+              if (isInputDisable) {
+                setIsInputDisable(false);
+              } else {
+                setIsInputDisable(true);
+                setMeetId(meetingId);
+              }
+            }}
           >
             {isInputDisable ? (
               <Pencil className="w-4 h-4 text-gray-600" />

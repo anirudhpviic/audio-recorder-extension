@@ -1,6 +1,5 @@
 console.log("loaded...");
-
-import axios from "axios";
+import api from "../api/config";
 
 let micAudioBuffer;
 let tabAudioBuffer;
@@ -99,10 +98,7 @@ async function sendToServer() {
   formData.append("meetId", meetId);
 
   try {
-    const res = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URI}/audio`,
-      formData
-    );
+    const res = await api.post("/audio", formData);
     console.log("res", res);
   } catch (error) {
     console.error("Error uploading audio:", error);

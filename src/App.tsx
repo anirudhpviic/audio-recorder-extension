@@ -1,16 +1,43 @@
-import { HashRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import { useEffect, useState } from "react";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
+import Home from "./pages/Home";
 
-function App() {
+const PrivateRoute = ({ children }: { children: any }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
+
+  useEffect(() => {
+    chrome.storage.local.get("accessToken", (result) => {
+      setIsAuthenticated(!!result.accessToken);
+    });
+  }, []);
+
+  if (isAuthenticated === null) return <div>Loading...</div>;
+
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const App = () => {
   return (
-    <HashRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
       </Routes>
-    </HashRouter>
+    </Router>
   );
-}
+};
 
 export default App;

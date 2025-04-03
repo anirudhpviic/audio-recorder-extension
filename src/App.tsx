@@ -35,6 +35,7 @@ const App = () => {
             </PrivateRoute>
           }
         />
+        {/* <Route path="/" element={<Home />} /> */}
       </Routes>
     </Router>
   );

@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import MeetRecorder from "../components/MeetRecorder";
+import api from "../api/config";
+// import { moms } from "../mocks/moms";
+import { Toaster } from "react-hot-toast";
+import MoMViewer from "../components/MomViewer";
 
 const Home = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [meetId, setMeetId] = useState("");
+  const [moMs, setMoMs] = useState([]);
 
   const recordingInterval = useRef<any>(null); // Use ref
 
@@ -19,7 +24,6 @@ const Home = () => {
       chrome.runtime.sendMessage({ type: "click", tabId: tabs[0].id });
     });
   };
-
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, () => {
@@ -70,8 +74,23 @@ const Home = () => {
     });
   }, [meetId]);
 
+  useEffect(() => {
+    const fetchMoMs = async () => {
+      try {
+        const res = await api.get("/audio");
+        setMoMs(res.data.data.moms);
+      } catch (error) {
+        console.log("Error fetching MoMs:", error);
+      }
+    };
+
+    fetchMoMs();
+  }, []);
+
   return (
     <div className="h-[600px] w-[500px] ">
+      <Toaster />
+
       <MeetRecorder
         isRecording={isRecording}
         recordingTime={recordingTime}
@@ -79,6 +98,8 @@ const Home = () => {
         handleClick={handleClick}
         setMeetId={setMeetId}
       />
+
+      <MoMViewer moMs={moMs} />
     </div>
   );
 };

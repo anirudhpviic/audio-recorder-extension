@@ -10,6 +10,7 @@ const Home = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [meetId, setMeetId] = useState("");
   const [moMs, setMoMs] = useState([]);
+  const [isInMeeting, setIsInMeeting] = useState(false);
 
   const recordingInterval = useRef<any>(null); // Use ref
 
@@ -41,9 +42,20 @@ const Home = () => {
       chrome.tabs.sendMessage(tabs[0].id, { action: "get-meeting-id" });
     });
 
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      // @ts-ignore
+      chrome.tabs.sendMessage(tabs[0].id, { action: "is-in-meeting" });
+    });
+
     chrome.runtime.onMessage.addListener((message) => {
       if (message.type === "return-meeting-id") {
         setMeetId(message.data);
+      }
+    });
+
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === "return-is-in-meeting") {
+        setIsInMeeting(message.data);
       }
     });
   }, []);
@@ -97,6 +109,7 @@ const Home = () => {
         meetId={meetId}
         handleClick={handleClick}
         setMeetId={setMeetId}
+        isInMeeting={isInMeeting}
       />
 
       <MoMViewer moMs={moMs} />

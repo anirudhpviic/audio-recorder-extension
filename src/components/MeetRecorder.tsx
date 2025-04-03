@@ -7,6 +7,7 @@ type MeetRecorderProps = {
   meetId: string;
   handleClick: () => Promise<void>;
   setMeetId: React.Dispatch<React.SetStateAction<string>>;
+  isInMeeting: boolean;
 };
 
 const MeetRecorder = ({
@@ -15,6 +16,7 @@ const MeetRecorder = ({
   meetId,
   handleClick,
   setMeetId,
+  isInMeeting,
 }: MeetRecorderProps) => {
   const [isInputDisable, setIsInputDisable] = useState(true);
   const [meetingId, setMeetingId] = useState("");
@@ -24,7 +26,12 @@ const MeetRecorder = ({
   }, [meetId]);
 
   return (
-    <div className="flex items-center justify-between p-3 bg-white border-b border-gray-200">
+    <div
+      className={`flex items-center justify-between p-3 bg-white border-b border-gray-200 ${
+        !isInMeeting ? "pointer-events-none opacity-50" : ""
+      }`}
+      aria-disabled={!isInMeeting}
+    >
       <div className="flex items-center">
         <div className="flex mr-2">
           <svg
@@ -83,9 +90,6 @@ const MeetRecorder = ({
                 .padStart(2, "0")}`}
             </span>
           )}
-          <span className="ml-1 text-sm font-medium text-gray-600">
-            {isRecording ? "Recording..." : "Record"}
-          </span>
         </div>
 
         <button

@@ -112,7 +112,7 @@ const Home = () => {
         isInMeeting={isInMeeting}
       />
 
-      <MoMViewer moMs={moMs} />
+      <MoMViewer moMs={moMs} setMoMs={setMoMs} />
     </div>
   );
 };

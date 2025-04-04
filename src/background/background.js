@@ -98,7 +98,7 @@ async function sendToServer() {
   formData.append("meetId", meetId);
 
   try {
-    const res = await api.post("/audio", formData);
+    const res = await api.post("/mom", formData);
     console.log("res", res);
   } catch (error) {
     console.error("Error uploading audio:", error);

@@ -89,7 +89,7 @@ const Home = () => {
   useEffect(() => {
     const fetchMoMs = async () => {
       try {
-        const res = await api.get("/audio");
+        const res = await api.get("/mom");
         setMoMs(res.data.data.moms);
       } catch (error) {
         console.log("Error fetching MoMs:", error);

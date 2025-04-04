@@ -27,7 +27,7 @@ const MoMViewer = ({ moMs, setMoMs }: { moMs: any; setMoMs: any }) => {
         duration: 2000,
         position: "bottom-center",
       });
-      const response = await api.put("/audio", {
+      const response = await api.put("/mom", {
         momId: editMomId,
         momCopyFormat: editMoM,
       });

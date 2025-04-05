@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import MeetRecorder from "../components/MeetRecorder";
 import api from "../api/config";
-// import { moms } from "../mocks/moms";
 import { Toaster } from "react-hot-toast";
 import MoMViewer from "../components/MomViewer";
 

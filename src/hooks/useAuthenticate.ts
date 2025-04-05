@@ -53,9 +53,7 @@ const useAuthenticate = () => {
       }
     };
 
-    // checkAuthentication();
-
-    setTimeout(checkAuthentication, 10000);
+    checkAuthentication();
   }, []);
 
   return isAuthenticated;

@@ -1,17 +1,9 @@
 import axios from "axios";
+import { getToken } from "../utils/get-token";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_BACKEND_URI}`,
 });
-
-// Helper function to get token from Chrome Storage
-const getToken = async (key: string) => {
-  return new Promise((resolve) => {
-    chrome.storage.local.get([key], (result) => {
-      resolve(result[key] || null);
-    });
-  });
-};
 
 // Attach Access Token to every request
 api.interceptors.request.use(async (config) => {

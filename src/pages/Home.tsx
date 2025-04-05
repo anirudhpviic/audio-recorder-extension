@@ -1,89 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import api from "../api/config";
 import { Toaster } from "react-hot-toast";
 import MoMViewer from "../components/MomViewer";
 
 const Home = () => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [meetId, setMeetId] = useState("");
   const [moMs, setMoMs] = useState([]);
-  const [isInMeeting, setIsInMeeting] = useState(false);
-
-  const recordingInterval = useRef<any>(null); // Use ref
-
-  const handleClick = async () => {
-    setIsRecording(!isRecording);
-
-    if (!isRecording) {
-      setRecordingTime(0);
-    }
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.runtime.sendMessage({ type: "click", tabId: tabs[0].id });
-    });
-  };
-
-  useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, () => {
-      chrome.runtime.sendMessage({ type: "get-recording-status" });
-    });
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type === "return-recording-status") {
-        setIsRecording(message.isRecording);
-        setRecordingTime(message.recordingTime);
-      }
-    });
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      // @ts-ignore
-      chrome.tabs.sendMessage(tabs[0].id, { action: "get-meeting-id" });
-    });
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      // @ts-ignore
-      chrome.tabs.sendMessage(tabs[0].id, { action: "is-in-meeting" });
-    });
-
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type === "return-meeting-id") {
-        setMeetId(message.data);
-      }
-    });
-
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type === "return-is-in-meeting") {
-        setIsInMeeting(message.data);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    console.log("isRecording:::", isRecording);
-    if (isRecording) {
-      recordingInterval.current = setInterval(() => {
-        setRecordingTime((prevTime) => prevTime + 1);
-      }, 1000);
-    } else {
-      if (recordingInterval.current) {
-        clearInterval(recordingInterval.current);
-        recordingInterval.current = null;
-      }
-    }
-
-    return () => {
-      if (recordingInterval.current) {
-        clearInterval(recordingInterval.current);
-      }
-    };
-  }, [isRecording]);
-
-  useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, () => {
-      chrome.runtime.sendMessage({ type: "set-meeting-id", data: meetId });
-    });
-  }, [meetId]);
 
   useEffect(() => {
     const fetchMoMs = async () => {
@@ -101,16 +23,7 @@ const Home = () => {
   return (
     <div className="h-[600px] w-[500px] ">
       <Toaster />
-
-      <NavBar
-        isRecording={isRecording}
-        recordingTime={recordingTime}
-        meetId={meetId}
-        handleClick={handleClick}
-        setMeetId={setMeetId}
-        isInMeeting={isInMeeting}
-      />
-
+      <NavBar />
       <MoMViewer moMs={moMs} setMoMs={setMoMs} />
     </div>
   );

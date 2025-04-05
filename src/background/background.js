@@ -108,7 +108,7 @@ async function sendToServer() {
 }
 
 chrome.runtime.onMessage.addListener(async (message) => {
-  if (message.type === "click") {
+  if (message.type === "record-start-or-stop") {
     await startOrStopRecording(message);
   } else if (message.type === "mic-recording-stopped") {
     micAudioBuffer = message.data;
@@ -129,7 +129,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
       tabAudioBuffer = undefined;
     }
   } else if (message.type === "MIC_STATUS") {
-    console.log("message.muted", message.isMuted);
     isMuted = message.isMuted;
     if (tabId) {
       chrome.tabs.sendMessage(tabId, {

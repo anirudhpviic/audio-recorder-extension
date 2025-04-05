@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import MeetRecorder from "../components/MeetRecorder";
+import NavBar from "../components/NavBar";
 import api from "../api/config";
 import { Toaster } from "react-hot-toast";
 import MoMViewer from "../components/MomViewer";
@@ -102,7 +102,7 @@ const Home = () => {
     <div className="h-[600px] w-[500px] ">
       <Toaster />
 
-      <MeetRecorder
+      <NavBar
         isRecording={isRecording}
         recordingTime={recordingTime}
         meetId={meetId}

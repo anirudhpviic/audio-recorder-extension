@@ -10,7 +10,7 @@ let isRecording = false;
 let recordingTime = 0;
 let recordingInterval;
 
-let meetId;
+let meetId = null;
 
 const startOrStopRecording = async (message) => {
   tabId = message.tabId;
@@ -144,5 +144,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
     });
   } else if (message.type === "set-meeting-id") {
     meetId = message.data;
+  } else if (message.type === "get-stored-meeting-id") {
+    chrome.runtime.sendMessage({
+      type: "return-stored-meeting-id",
+      meetId,
+    });
   }
 });

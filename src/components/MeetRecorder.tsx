@@ -9,6 +9,7 @@ const MeetRecorder = () => {
   const [isInputDisable, setIsInputDisable] = useState(true);
   const recordingInterval = useRef<any>(null);
 
+  // record start or stop
   const handleClick = async () => {
     setIsRecording(!isRecording);
 
@@ -30,27 +31,6 @@ const MeetRecorder = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, () => {
       chrome.runtime.sendMessage({ type: "get-recording-status" });
     });
-    // from background script
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type === "return-recording-status") {
-        setIsRecording(message.isRecording);
-        setRecordingTime(message.recordingTime);
-        console.log("isRecording", message);
-      }
-    });
-
-    // send to meet content script
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      // @ts-ignore
-      chrome.tabs.sendMessage(tabs[0].id, { action: "get-meeting-id" });
-    });
-
-    // from meet content script
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type === "return-meeting-id") {
-        setMeetId(message.data);
-      }
-    });
 
     // send to meet content script
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -58,12 +38,48 @@ const MeetRecorder = () => {
       chrome.tabs.sendMessage(tabs[0].id, { action: "is-in-meeting" });
     });
 
-    // from meet content script
-    chrome.runtime.onMessage.addListener((message) => {
+    // send to background script
+    chrome.tabs.query({ active: true, currentWindow: true }, () => {
+      chrome.runtime.sendMessage({ type: "get-stored-meeting-id" });
+    });
+
+    const handleMessage = (message: any) => {
+      // from background script
+      if (message.type === "return-recording-status") {
+        setIsRecording(message.isRecording);
+        setRecordingTime(message.recordingTime);
+        console.log("isRecording", message);
+      }
+
+      // from meet content script
+      if (message.type === "return-meeting-id") {
+        setMeetId(message.data);
+      }
+
+      // from meet content script
       if (message.type === "return-is-in-meeting") {
         setIsInMeeting(message.data);
       }
-    });
+
+      // from background script
+      if (message.type === "return-stored-meeting-id") {
+        if (message.meetId) {
+          setMeetId(message.meetId);
+        } else {
+          // send to meet content script
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            // @ts-ignore
+            chrome.tabs.sendMessage(tabs[0].id, { action: "get-meeting-id" });
+          });
+        }
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
   }, []);
 
   useEffect(() => {
@@ -75,6 +91,7 @@ const MeetRecorder = () => {
       if (recordingInterval.current) {
         clearInterval(recordingInterval.current);
         recordingInterval.current = null;
+        setMeetId("");
       }
     }
 

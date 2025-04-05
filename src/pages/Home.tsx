@@ -6,25 +6,36 @@ import MoMViewer from "../components/MomViewer";
 
 const Home = () => {
   const [moMs, setMoMs] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchMoMs = async () => {
+    try {
+      const res = await api.get("/mom");
+      setMoMs(res.data.data.moms);
+
+      if (isRefreshing) {
+        setIsRefreshing(false);
+      }
+    } catch (error) {
+      console.log("Error fetching MoMs:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchMoMs = async () => {
-      try {
-        const res = await api.get("/mom");
-        setMoMs(res.data.data.moms);
-      } catch (error) {
-        console.log("Error fetching MoMs:", error);
-      }
-    };
-
     fetchMoMs();
   }, []);
+
+  useEffect(() => {
+    if (isRefreshing) {
+      fetchMoMs();
+    }
+  }, [isRefreshing]);
 
   return (
     <div className="h-[600px] w-[500px] ">
       <Toaster />
-      <NavBar />
-      <MoMViewer moMs={moMs} setMoMs={setMoMs} />
+      <NavBar isRefreshing={isRefreshing} setIsRefreshing={setIsRefreshing} />
+      <MoMViewer moMs={moMs} setMoMs={setMoMs} isRefreshing={isRefreshing} />
     </div>
   );
 };

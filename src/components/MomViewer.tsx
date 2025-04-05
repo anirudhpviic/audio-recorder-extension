@@ -4,7 +4,15 @@ import { toast } from "react-hot-toast";
 import { useState } from "react";
 import api from "../api/config";
 
-const MoMViewer = ({ moMs, setMoMs }: { moMs: any; setMoMs: any }) => {
+const MoMViewer = ({
+  moMs,
+  setMoMs,
+  isRefreshing,
+}: {
+  moMs: any;
+  setMoMs: any;
+  isRefreshing: boolean;
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editMomId, setEditMomId] = useState("");
   const [editMoM, setEditMoM] = useState("");
@@ -51,6 +59,14 @@ const MoMViewer = ({ moMs, setMoMs }: { moMs: any; setMoMs: any }) => {
       console.error("Error saving MoM:", error);
     }
   };
+
+  if (isRefreshing) {
+    return (
+      <div className="flex items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg">
+        <p className="text-gray-600">Refreshing...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full">

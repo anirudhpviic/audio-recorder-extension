@@ -1,5 +1,6 @@
-import { Mic, MicOff, Pencil, Save } from "lucide-react";
+import { LoaderCircle, Mic, MicOff, Pencil, Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 const MeetRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -8,6 +9,7 @@ const MeetRecorder = () => {
   const [isInMeeting, setIsInMeeting] = useState(false);
   const [isInputDisable, setIsInputDisable] = useState(true);
   const recordingInterval = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // record start or stop
   const handleClick = async () => {
@@ -15,6 +17,10 @@ const MeetRecorder = () => {
 
     if (!isRecording) {
       setRecordingTime(0);
+    }
+
+    if (isRecording) {
+      setIsLoading(true);
     }
 
     // send to background script
@@ -72,6 +78,15 @@ const MeetRecorder = () => {
             chrome.tabs.sendMessage(tabs[0].id, { action: "get-meeting-id" });
           });
         }
+      }
+
+      // from background script
+      if (message.type === "audio-uploaded") {
+        setIsLoading(false);
+        toast.success("Meet audio uploaded! Check back in a few moments.", {
+          duration: 5000,
+          position: "bottom-center",
+        });
       }
     };
 
@@ -173,10 +188,14 @@ const MeetRecorder = () => {
           className="p-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100"
         >
           <div className="flex items-center justify-center w-6 h-6">
-            {isRecording ? (
+            {isRecording && !isLoading ? (
               <MicOff className="w-5 h-5 text-red-600" />
             ) : (
-              <Mic className="w-5 h-5 text-green-600" />
+              !isLoading && <Mic className="w-5 h-5 text-green-600" />
+            )}
+
+            {isLoading && (
+              <LoaderCircle className="w-5 h-5 text-gray-600 animate-spin" />
             )}
           </div>
         </button>

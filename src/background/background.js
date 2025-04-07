@@ -98,8 +98,11 @@ async function sendToServer() {
   formData.append("meetId", meetId);
 
   try {
-    const res = await api.post("/mom", formData);
-    console.log("res", res);
+    await api.post("/mom", formData);
+    // to popup
+    chrome.runtime.sendMessage({
+      type: "audio-uploaded",
+    });
   } catch (error) {
     console.error("Error uploading audio:", error);
   } finally {

@@ -9,11 +9,13 @@ const MoMViewer = ({
   setMoMs,
   isRefreshing,
   isLoading,
+  totalCounts,
 }: {
   moMs: any;
   setMoMs: any;
   isRefreshing: boolean;
   isLoading: boolean;
+  totalCounts: number;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editMomId, setEditMomId] = useState("");
@@ -57,7 +59,7 @@ const MoMViewer = ({
     }
   };
 
-  if (isLoading) {
+  if (isLoading && moMs.length === 0) {
     return (
       <div className="flex flex-col justify-center w-full h-full gap-4 px-2 pt-4 animate-pulse">
         <div className="w-full bg-gray-300 rounded-lg h-3/4"></div>
@@ -81,17 +83,21 @@ const MoMViewer = ({
         <div className="flex flex-col gap-4 px-2 py-4 rounded-lg">
           {moMs && moMs.length > 0 ? (
             moMs.map(
-              ({
-                momMarkDownFormat,
-                momCopyFormat,
-                _id,
-              }: {
-                momMarkDownFormat: string;
-                momCopyFormat: string;
-                _id: string;
-              }) => (
+              (
+                {
+                  momMarkDownFormat,
+                  momCopyFormat,
+                  _id,
+                }: {
+                  momMarkDownFormat: string;
+                  momCopyFormat: string;
+                  _id: string;
+                },
+                idx: any
+              ) => (
                 <div
                   key={_id}
+                  id={`mom-${idx}`}
                   className="relative w-full p-4 border rounded-lg shadow-sm bg-gray-50"
                 >
                   <ReactMarkdown>{momMarkDownFormat}</ReactMarkdown>
@@ -154,6 +160,17 @@ const MoMViewer = ({
               onChange={(e) => setEditMoM(e.target.value)}
             />
           </div>
+        </div>
+      )}
+      {isLoading && moMs.length > 0 && (
+        <div className="flex flex-col gap-4 px-2 rounded-lg animate-pulse">
+          <div className="w-full bg-gray-300 rounded-lg h-[40vh]"></div>
+          <div className="w-full bg-gray-300 rounded-t-lg h-[6vh]"></div>
+        </div>
+      )}
+      {moMs.length === totalCounts && (
+        <div className="flex items-center justify-center pb-2">
+          <h4>No more MoMs to load!</h4>
         </div>
       )}
     </div>

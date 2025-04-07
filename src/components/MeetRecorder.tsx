@@ -91,7 +91,6 @@ const MeetRecorder = () => {
       if (recordingInterval.current) {
         clearInterval(recordingInterval.current);
         recordingInterval.current = null;
-        setMeetId("");
       }
     }
 

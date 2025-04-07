@@ -1,7 +1,7 @@
 import { CircleCheck, CircleX, Copy, Edit } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/config";
 
 const MoMViewer = ({
@@ -20,6 +20,20 @@ const MoMViewer = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editMomId, setEditMomId] = useState("");
   const [editMoM, setEditMoM] = useState("");
+
+  const scrollToTop = () => {
+    const scrollableElement = document.querySelector(".scrollable-container");
+    if (scrollableElement) {
+      scrollableElement.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  useEffect(() => {
+    scrollToTop();
+  }, [isRefreshing]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -78,7 +92,7 @@ const MoMViewer = ({
   }
 
   return (
-    <div className="flex-1 w-full overflow-y-auto">
+    <div className="flex-1 w-full overflow-y-auto scrollable-container">
       {!isEditing ? (
         <div className="flex flex-col gap-4 px-2 py-4 rounded-lg">
           {moMs && moMs.length > 0 ? (

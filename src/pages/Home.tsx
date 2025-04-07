@@ -9,6 +9,7 @@ const Home = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [totalCounts, setTotalCounts] = useState(0);
+  const [page, setPage] = useState(1);
   const observer = useRef<any>(null);
   const limit = 10; // Number of items to fetch per request
 
@@ -17,11 +18,10 @@ const Home = () => {
       if (!isRefreshing) {
         setIsLoading(true);
       }
-      const res = await api.get(
-        `/mom?limit=${limit}&page=${moMs.length / limit + 1}`
-      );
+      const res = await api.get(`/mom?limit=${limit}&page=${page}`);
       setMoMs((prev: any) => [...prev, ...res.data.data.moms]);
       setTotalCounts(res.data.data.totalCounts);
+      setPage((prev) => prev + 1);
       if (isRefreshing) {
         setIsRefreshing(false);
       } else {
@@ -40,9 +40,15 @@ const Home = () => {
     if (isRefreshing) {
       setMoMs([]);
       setTotalCounts(0);
-      fetchMoMs();
+      setPage(1);
     }
   }, [isRefreshing]);
+
+  useEffect(() => {
+    if (isRefreshing && moMs.length === 0 && totalCounts === 0 && page === 1) {
+      fetchMoMs();
+    }
+  }, [isRefreshing, moMs, totalCounts, page]);
 
   useEffect(() => {
     if (moMs.length === totalCounts) return; // No more items to fetch

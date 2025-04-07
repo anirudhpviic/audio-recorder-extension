@@ -78,7 +78,7 @@ const MoMViewer = ({
   }
 
   return (
-    <div className="flex-1 w-full">
+    <div className="flex-1 w-full overflow-y-auto">
       {!isEditing ? (
         <div className="flex flex-col gap-4 px-2 py-4 rounded-lg">
           {moMs && moMs.length > 0 ? (

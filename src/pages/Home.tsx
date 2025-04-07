@@ -64,7 +64,7 @@ const Home = () => {
   }, [moMs]);
 
   return (
-    <div className="h-[600px] w-[500px] flex flex-col">
+    <div className="h-[600px] w-[500px] flex flex-col pt-16">
       <Toaster />
       <NavBar isRefreshing={isRefreshing} setIsRefreshing={setIsRefreshing} />
       <MoMViewer

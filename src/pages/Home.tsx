@@ -38,6 +38,8 @@ const Home = () => {
 
   useEffect(() => {
     if (isRefreshing) {
+      setMoMs([]);
+      setTotalCounts(0);
       fetchMoMs();
     }
   }, [isRefreshing]);

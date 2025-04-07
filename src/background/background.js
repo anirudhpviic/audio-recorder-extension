@@ -105,6 +105,14 @@ async function sendToServer() {
     });
   } catch (error) {
     console.error("Error uploading audio:", error);
+
+    // Fallback: Download the audio files in the browser
+    if (micBlob) {
+      downloadBlob(micBlob, "micAudio.webm");
+    }
+    if (tabBlob) {
+      downloadBlob(tabBlob, "tabAudio.webm");
+    }
   } finally {
     return;
   }
@@ -154,3 +162,19 @@ chrome.runtime.onMessage.addListener(async (message) => {
     });
   }
 });
+
+// Helper function to download a Blob as a file
+function downloadBlob(blob, filename) {
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    const base64Data = reader.result.split(",")[1]; // Extract Base64 data
+    const url = `data:${blob.type};base64,${base64Data}`;
+
+    chrome.downloads.download({
+      url: url,
+      filename: filename,
+      saveAs: true, // Prompts the user to choose the download location
+    });
+  };
+  reader.readAsDataURL(blob);
+}

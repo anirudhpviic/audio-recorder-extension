@@ -13,7 +13,9 @@
     "scripting",
     "activeTab",
     "tabs",
-    "storage"
+    "storage",
+    "downloads",
+    "downloads.shelf"
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
@@ -22,7 +24,11 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["src/content/mic-content.js", "src/content/mute-check-content.js","src/content/meet-content.js"]
+      "js": [
+        "src/content/mic-content.js",
+        "src/content/mute-check-content.js",
+        "src/content/meet-content.js"
+      ]
     }
   ]
 }

@@ -8,10 +8,12 @@ const MoMViewer = ({
   moMs,
   setMoMs,
   isRefreshing,
+  isLoading,
 }: {
   moMs: any;
   setMoMs: any;
   isRefreshing: boolean;
+  isLoading: boolean;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editMomId, setEditMomId] = useState("");
@@ -26,8 +28,6 @@ const MoMViewer = ({
   };
 
   const handleSave = async () => {
-    console.log("mom hi: ", editMoM);
-    console.log("mom id: ", editMomId);
     try {
       setIsEditing(false);
       setEditMomId("");
@@ -40,8 +40,6 @@ const MoMViewer = ({
         momCopyFormat: editMoM,
       });
 
-      console.log("Response from server:", response.data);
-
       const updatedMoMs = moMs.map((mom: any) => {
         if (mom._id === editMomId) {
           return response.data.data;
@@ -49,7 +47,6 @@ const MoMViewer = ({
         return mom;
       });
 
-      console.log("Updated MoMs:", updatedMoMs);
       setMoMs(updatedMoMs);
       toast.success("Edit saved successfully!", {
         duration: 2000,
@@ -60,10 +57,20 @@ const MoMViewer = ({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col justify-center w-full h-full gap-4 px-2 pt-4 animate-pulse">
+        <div className="w-full bg-gray-300 rounded-lg h-3/4"></div>
+        <div className="w-full bg-gray-300 rounded-t-lg h-[40vh]"></div>
+      </div>
+    );
+  }
+
   if (isRefreshing) {
     return (
-      <div className="flex items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg">
-        <h2 className="text-lg text-gray-600">Refreshing...</h2>
+      <div className="flex flex-col justify-center w-full h-full gap-4 px-2 pt-4 animate-pulse">
+        <div className="w-full bg-gray-300 rounded-lg h-3/4"></div>
+        <div className="w-full bg-gray-300 rounded-t-lg h-[40vh]"></div>
       </div>
     );
   }

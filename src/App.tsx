@@ -7,6 +7,7 @@ import {
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import useAuthenticate from "./hooks/useAuthenticate";
+import Settings from "./pages/Settings";
 
 const PrivateRoute = ({ children }: { children: any }) => {
   const isAuthenticated = useAuthenticate();
@@ -32,6 +33,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <Home />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Settings />
             </PrivateRoute>
           }
         />

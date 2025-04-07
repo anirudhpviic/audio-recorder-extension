@@ -1,5 +1,6 @@
 import { RefreshCw, SlidersVertical } from "lucide-react";
 import MeetRecorder from "./MeetRecorder";
+import { useNavigate } from "react-router-dom";
 
 const NavBar = ({
   setIsRefreshing,
@@ -8,6 +9,8 @@ const NavBar = ({
   setIsRefreshing: any;
   isRefreshing: boolean;
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex gap-2 border-b border-gray-200">
       <MeetRecorder />
@@ -24,7 +27,10 @@ const NavBar = ({
           />
         </button>
         <button title="Settings">
-          <SlidersVertical className="w-5 h-5 text-gray-600" />
+          <SlidersVertical
+            onClick={() => navigate("/settings")}
+            className="w-5 h-5 text-gray-600"
+          />
         </button>
       </div>
     </div>

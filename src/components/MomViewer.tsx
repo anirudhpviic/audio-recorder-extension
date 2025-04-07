@@ -63,13 +63,13 @@ const MoMViewer = ({
   if (isRefreshing) {
     return (
       <div className="flex items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg">
-        <p className="text-gray-600">Refreshing...</p>
+        <h2 className="text-lg text-gray-600">Refreshing...</h2>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="flex-1 w-full">
       {!isEditing ? (
         <div className="flex flex-col gap-4 px-2 py-4 rounded-lg">
           {moMs && moMs.length > 0 ? (

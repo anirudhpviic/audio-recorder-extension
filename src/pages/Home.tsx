@@ -32,7 +32,7 @@ const Home = () => {
   }, [isRefreshing]);
 
   return (
-    <div className="h-[600px] w-[500px] ">
+    <div className="h-[600px] w-[500px] flex flex-col">
       <Toaster />
       <NavBar isRefreshing={isRefreshing} setIsRefreshing={setIsRefreshing} />
       <MoMViewer moMs={moMs} setMoMs={setMoMs} isRefreshing={isRefreshing} />

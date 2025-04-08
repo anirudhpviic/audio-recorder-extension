@@ -152,10 +152,10 @@ const UploadFiles = () => {
           </div>
         )}
         <button
-          disabled={isSubmitDisabled}
+          disabled={isSubmitDisabled || isLoading}
           onClick={handleSubmit}
           className={`px-4 py-2 mt-4 text-white bg-green-500 rounded hover:bg-green-600 ${
-            isSubmitDisabled
+            isSubmitDisabled || isLoading
               ? "opacity-50 cursor-not-allowed"
               : "cursor-pointer"
           }`}

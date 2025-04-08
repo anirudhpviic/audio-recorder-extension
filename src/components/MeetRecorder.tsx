@@ -24,10 +24,9 @@ const MeetRecorder = () => {
     }
 
     // send to background script
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, () => {
       chrome.runtime.sendMessage({
         type: "record-start-or-stop",
-        tabId: tabs[0].id,
       });
     });
   };

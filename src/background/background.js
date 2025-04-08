@@ -1,5 +1,7 @@
 console.log("loaded...");
 import api from "../api/config";
+import { jwtDecode } from "jwt-decode";
+import { getToken } from "../utils/get-token";
 
 let micAudioBuffer;
 let tabAudioBuffer;
@@ -12,8 +14,7 @@ let recordingInterval;
 
 let meetId = null;
 
-const startOrStopRecording = async (message) => {
-  tabId = message.tabId;
+const startOrStopRecording = async () => {
   const existingContexts = await chrome.runtime.getContexts({});
   let recording = false;
   const offscreenDocument = existingContexts.find(
@@ -32,7 +33,7 @@ const startOrStopRecording = async (message) => {
   }
   if (recording) {
     // stop recording
-    chrome.tabs.sendMessage(message.tabId, { action: "mic-recording-stop" });
+    chrome.tabs.sendMessage(tabId, { action: "mic-recording-stop" });
 
     chrome.runtime.sendMessage({
       type: "stop-recording",
@@ -49,11 +50,11 @@ const startOrStopRecording = async (message) => {
   }
   // Get a MediaStream for the active tab.
   const streamId = await chrome.tabCapture.getMediaStreamId({
-    targetTabId: message.tabId,
+    targetTabId: tabId,
   });
 
   // start-recording
-  chrome.tabs.sendMessage(message.tabId, {
+  chrome.tabs.sendMessage(tabId, {
     action: "mic-recording-start",
     isMuted,
   });
@@ -122,7 +123,7 @@ async function sendToServer() {
 
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "record-start-or-stop") {
-    await startOrStopRecording(message);
+    await startOrStopRecording();
   } else if (message.type === "mic-recording-stopped") {
     micAudioBuffer = message.data;
 
@@ -163,6 +164,19 @@ chrome.runtime.onMessage.addListener(async (message) => {
       meetId,
     });
   } else if (message.type === "USER_JOINED_MEET") {
+    const accessToken = await getToken("accessToken");
+
+    if (!accessToken) {
+      return;
+    }
+
+    const decoded = jwtDecode(accessToken);
+    const isExpired = decoded.exp * 1000 - 5 * 60 * 1000 < Date.now(); // Subtract 5 minutes from expiration time
+
+    if (isExpired) {
+      return;
+    }
+
     chrome.notifications.create({
       type: "basic",
       iconUrl: "icons/recording.png",
@@ -183,16 +197,14 @@ chrome.runtime.onMessage.addListener(async (message) => {
         });
         return;
       }
-      message.tabId = tabId;
-      await startOrStopRecording(message);
+      await startOrStopRecording();
     });
   } else if (message.type === "USER_LEFT_MEET") {
     if (!isRecording || !tabId) {
       return;
     }
 
-    message.tabId = tabId;
-    await startOrStopRecording(message);
+    await startOrStopRecording();
 
     chrome.notifications.create({
       type: "basic",
@@ -202,6 +214,8 @@ chrome.runtime.onMessage.addListener(async (message) => {
       priority: 2,
     });
     return;
+  } else if (message.type === "tab-id") {
+    tabId = message.tabId;
   }
 });
 

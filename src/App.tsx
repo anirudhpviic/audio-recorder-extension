@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import useAuthenticate from "./hooks/useAuthenticate";
 import Settings from "./pages/Settings";
+import UploadFiles from "./pages/UploadFiles";
 
 const PrivateRoute = ({ children }: { children: any }) => {
   const isAuthenticated = useAuthenticate();
@@ -41,6 +42,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <Settings />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/upload-files"
+          element={
+            <PrivateRoute>
+              <UploadFiles />
             </PrivateRoute>
           }
         />

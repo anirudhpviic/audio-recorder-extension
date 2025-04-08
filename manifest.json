@@ -29,7 +29,8 @@
         "src/content/mic-content.js",
         "src/content/mute-check-content.js",
         "src/content/meet-content.js",
-        "src/content/meet-status-content.js"
+        "src/content/meet-start-check-content.js",
+        "src/content/meet-end-check-content.js"
       ]
     }
   ]

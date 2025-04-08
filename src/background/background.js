@@ -98,7 +98,9 @@ async function sendToServer() {
   formData.append("meetId", meetId);
 
   try {
+    console.log("sending to server");
     await api.post("/mom", formData);
+    console.log("returned from server");
     // to popup
     chrome.runtime.sendMessage({
       type: "audio-uploaded",
@@ -184,6 +186,22 @@ chrome.runtime.onMessage.addListener(async (message) => {
       message.tabId = tabId;
       await startOrStopRecording(message);
     });
+  } else if (message.type === "USER_LEFT_MEET") {
+    if (!isRecording || !tabId) {
+      return;
+    }
+
+    message.tabId = tabId;
+    await startOrStopRecording(message);
+
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "icons/not-recording.png",
+      title: "Meeting Ended",
+      message: "Meet recording stopped.",
+      priority: 2,
+    });
+    return;
   }
 });
 

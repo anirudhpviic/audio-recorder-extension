@@ -160,6 +160,30 @@ chrome.runtime.onMessage.addListener(async (message) => {
       type: "return-stored-meeting-id",
       meetId,
     });
+  } else if (message.type === "USER_JOINED_MEET") {
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "icons/recording.png",
+      title: "Meeting Started",
+      message: "Click here to start recording.",
+      priority: 2,
+    });
+
+    // handle click on the notification to start recording
+    chrome.notifications.onClicked.addListener(async () => {
+      if (!tabId) {
+        chrome.notifications.create({
+          type: "basic",
+          iconUrl: "icons/recording.png",
+          title: "Error",
+          message: "Please open popup.",
+          priority: 2,
+        });
+        return;
+      }
+      message.tabId = tabId;
+      await startOrStopRecording(message);
+    });
   }
 });
 

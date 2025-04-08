@@ -15,7 +15,8 @@
     "tabs",
     "storage",
     "downloads",
-    "downloads.shelf"
+    "downloads.shelf",
+    "notifications"
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
@@ -27,7 +28,8 @@
       "js": [
         "src/content/mic-content.js",
         "src/content/mute-check-content.js",
-        "src/content/meet-content.js"
+        "src/content/meet-content.js",
+        "src/content/meet-status-content.js"
       ]
     }
   ]

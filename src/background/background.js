@@ -219,6 +219,46 @@ chrome.runtime.onMessage.addListener(async (message) => {
   }
 });
 
+chrome.runtime.onMessage.addListener(async (message) => {
+  if (message.type === "mic-record-start-or-stop") {
+    if (isRecording) {
+      console.log("recording stop");
+      console.log("tabId", tabId);
+      // stop-recording
+      chrome.tabs.sendMessage(tabId, {
+        action: "mic2-recording-stop",
+      });
+
+      isRecording = false;
+
+      clearInterval(recordingInterval);
+      recordingTime = 0;
+
+      chrome.action.setIcon({ path: "icons/not-recording.png" });
+      return;
+    } else if (!isRecording) {
+      console.log("recording start");
+      console.log("tabId", tabId);
+      // start-recording
+      chrome.tabs.sendMessage(tabId, {
+        action: "mic-two-recording-start",
+      });
+
+      isRecording = true;
+
+      recordingInterval = setInterval(() => {
+        recordingTime += 1;
+      }, 1000);
+
+      chrome.action.setIcon({ path: "icons/recording.png" });
+      return;
+    }
+  } else if (message.type === "mic2-recording-stopped") {
+    console.log("Received mic2-recording-stopped message", message);
+    await sendToServer2(message.data);
+  }
+});
+
 // Helper function to download a Blob as a file
 function downloadBlob(blob, filename) {
   const reader = new FileReader();
@@ -233,4 +273,41 @@ function downloadBlob(blob, filename) {
     });
   };
   reader.readAsDataURL(blob);
+}
+
+async function sendToServer2(micBuffer) {
+  const micBlob = await fetch(micBuffer)
+    .then((res) => res.blob())
+    .then((blob) => {
+      return blob;
+    })
+    .catch((error) => {
+      console.error("Error converting Base64 to Blob:", error);
+    });
+
+  const formData = new FormData();
+  formData.append("fileType", "audio");
+  formData.append("audio", micBlob, "micAudio.webm");
+  formData.append("meetId", meetId);
+
+  try {
+    console.log("sending to server");
+    // await api.post("/mom", formData);
+    await api.post("/mom/upload-files", formData);
+
+    console.log("returned from server");
+    // to popup
+    chrome.runtime.sendMessage({
+      type: "audio-uploaded",
+    });
+  } catch (error) {
+    console.error("Error uploading audio:", error);
+
+    // Fallback: Download the audio files in the browser
+    if (micBlob) {
+      downloadBlob(micBlob, "micAudio.webm");
+    }
+  } finally {
+    return;
+  }
 }

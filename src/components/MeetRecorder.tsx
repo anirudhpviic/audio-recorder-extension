@@ -31,6 +31,25 @@ const MeetRecorder = () => {
     });
   };
 
+  const handleMicClick = async () => {
+    setIsRecording(!isRecording);
+
+    if (!isRecording) {
+      setRecordingTime(0);
+    }
+
+    if (isRecording) {
+      setIsLoading(true);
+    }
+
+    // send to background script
+    chrome.tabs.query({ active: true, currentWindow: true }, () => {
+      chrome.runtime.sendMessage({
+        type: "mic-record-start-or-stop",
+      });
+    });
+  };
+
   useEffect(() => {
     // send to background script
     chrome.tabs.query({ active: true, currentWindow: true }, () => {
@@ -123,12 +142,7 @@ const MeetRecorder = () => {
   }, [meetId]);
 
   return (
-    <div
-      className={`flex flex-1 items-center justify-between p-3 bg-white  ${
-        !isInMeeting ? "pointer-events-none opacity-25" : ""
-      }`}
-      aria-disabled={!isInMeeting}
-    >
+    <div className={`flex flex-1 items-center justify-between p-3 bg-white`}>
       <div className="flex items-center">
         <div className="flex mr-2">
           <svg
@@ -183,7 +197,7 @@ const MeetRecorder = () => {
         </div>
 
         <button
-          onClick={handleClick}
+          onClick={isInMeeting ? handleClick : handleMicClick}
           className="p-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100"
         >
           <div className="flex items-center justify-center w-6 h-6">

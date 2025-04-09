@@ -144,7 +144,7 @@ const MeetRecorder = () => {
           </svg>
         </div>
         <div className="flex items-center">
-          <span className="mx-1 font-medium text-gray-800">Meet –</span>
+          <span className="mx-1 font-medium text-gray-800">Meet: </span>
           <input
             type="text"
             value={meetId}
@@ -168,7 +168,7 @@ const MeetRecorder = () => {
       </div>
 
       <div className="flex items-center">
-        <div className="flex items-center mr-4">
+        <div className="flex items-center mr-2">
           {isRecording && (
             <span className="mr-1 text-sm font-medium text-gray-600">
               {`${Math.floor(recordingTime / 3600)

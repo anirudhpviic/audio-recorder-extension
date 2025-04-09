@@ -3,8 +3,10 @@ const checkValidMeeting = () => {
   const isGoogleMeet = meetingUrl.startsWith("https://meet.google.com");
   const meetId = window.location.pathname.slice(1); // Extract the part after "/"
 
+  const leaveButton = document.querySelector('[aria-label="Leave call"]');
+
   // Check if the meetId matches the expected format (letters and dashes)
-  return isGoogleMeet && /^[a-zA-Z0-9-]+$/.test(meetId);
+  return isGoogleMeet && leaveButton && /^[a-zA-Z0-9-]+$/.test(meetId);
 };
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {

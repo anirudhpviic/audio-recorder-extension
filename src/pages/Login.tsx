@@ -17,10 +17,13 @@ const Login = () => {
     );
   };
 
-  // Listen for login successful
+  // from external webpage send from backend
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(async (message) => {
-      if (message.type === "LOGIN_SUCCESS") {
+    window.addEventListener("message", (event) => {
+      if (event.data?.type === "LOGIN_SUCCESS") {
+        const { user, accessToken, refreshToken } = event.data.payload;
+        chrome.storage.local.set({ user, accessToken, refreshToken });
+
         navigate("/");
       }
     });

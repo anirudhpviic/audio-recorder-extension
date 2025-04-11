@@ -114,8 +114,9 @@ const MoMViewer = ({
                   id={`mom-${idx}`}
                   className="relative w-full p-4 border rounded-lg shadow-sm bg-gray-50"
                 >
-                  <ReactMarkdown>{momMarkDownFormat}</ReactMarkdown>
-
+                  <div className="prose lg:prose-xl">
+                    <ReactMarkdown>{momMarkDownFormat}</ReactMarkdown>
+                  </div>
                   <div className="absolute flex gap-2 top-2 right-2">
                     <button
                       className="p-2 transition bg-gray-100 rounded-lg hover:bg-gray-200"

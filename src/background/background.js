@@ -13,6 +13,7 @@ let recordingTime = 0;
 let recordingInterval;
 
 let meetId = null;
+let isInMeeting = false;
 
 const startOrStopRecording = async () => {
   const existingContexts = await chrome.runtime.getContexts({});
@@ -198,9 +199,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
         return;
       }
       await startOrStopRecording();
+      isInMeeting = true;
     });
   } else if (message.type === "USER_LEFT_MEET") {
-    if (!isRecording || !tabId) {
+    if (!isRecording || !tabId || !isInMeeting) {
       return;
     }
 
@@ -216,46 +218,65 @@ chrome.runtime.onMessage.addListener(async (message) => {
     return;
   } else if (message.type === "tab-id") {
     tabId = message.tabId;
+  } else if (message.type === "is-in-meeting-to-background") {
+    isInMeeting = message.isInMeeting;
   }
 });
 
+async function startOrStopRecording2() {
+  if (isRecording) {
+    console.log("recording stop");
+    console.log("tabId", tabId);
+    // stop-recording
+    chrome.tabs.sendMessage(tabId, {
+      action: "mic2-recording-stop",
+    });
+
+    isRecording = false;
+
+    clearInterval(recordingInterval);
+    recordingTime = 0;
+
+    chrome.action.setIcon({ path: "icons/not-recording.png" });
+    return;
+  } else if (!isRecording) {
+    console.log("recording start");
+    console.log("tabId", tabId);
+    // start-recording
+    chrome.tabs.sendMessage(tabId, {
+      action: "mic-two-recording-start",
+    });
+
+    isRecording = true;
+
+    recordingInterval = setInterval(() => {
+      recordingTime += 1;
+    }, 1000);
+
+    chrome.action.setIcon({ path: "icons/recording.png" });
+    return;
+  }
+}
+
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "mic-record-start-or-stop") {
-    if (isRecording) {
-      console.log("recording stop");
-      console.log("tabId", tabId);
-      // stop-recording
-      chrome.tabs.sendMessage(tabId, {
-        action: "mic2-recording-stop",
-      });
-
-      isRecording = false;
-
-      clearInterval(recordingInterval);
-      recordingTime = 0;
-
-      chrome.action.setIcon({ path: "icons/not-recording.png" });
-      return;
-    } else if (!isRecording) {
-      console.log("recording start");
-      console.log("tabId", tabId);
-      // start-recording
-      chrome.tabs.sendMessage(tabId, {
-        action: "mic-two-recording-start",
-      });
-
-      isRecording = true;
-
-      recordingInterval = setInterval(() => {
-        recordingTime += 1;
-      }, 1000);
-
-      chrome.action.setIcon({ path: "icons/recording.png" });
-      return;
-    }
+    await startOrStopRecording2();
   } else if (message.type === "mic2-recording-stopped") {
     console.log("Received mic2-recording-stopped message", message);
     await sendToServer2(message.data);
+  } else if (message.type === "PAGE_RELOAD") {
+    if (!isRecording || !tabId || isInMeeting) {
+      return;
+    }
+    await startOrStopRecording2();
+
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "icons/not-recording.png",
+      title: "Recording Ended",
+      message: "Recording stopped due to page reload.",
+      priority: 2,
+    });
   }
 });
 

@@ -83,6 +83,13 @@ const MeetRecorder = () => {
       // from meet content script
       if (message.type === "return-is-in-meeting") {
         setIsInMeeting(message.data);
+        // send to background script
+        chrome.tabs.query({ active: true, currentWindow: true }, () => {
+          chrome.runtime.sendMessage({
+            type: "is-in-meeting-to-background",
+            isInMeeting: message.data,
+          });
+        });
       }
 
       // from background script

@@ -148,6 +148,16 @@ const MeetRecorder = () => {
     });
   }, [meetId]);
 
+  useEffect(() => {
+    // send to background script
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.runtime.sendMessage({
+        type: "tab-id",
+        tabId: tabs[0].id,
+      });
+    });
+  }, [isRecording]);
+
   return (
     <div className={`flex flex-1 items-center justify-between p-3 bg-white`}>
       <div className="flex items-center">
@@ -204,6 +214,7 @@ const MeetRecorder = () => {
         </div>
 
         <button
+          disabled={isLoading}
           onClick={isInMeeting ? handleClick : handleMicClick}
           className="p-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100"
         >

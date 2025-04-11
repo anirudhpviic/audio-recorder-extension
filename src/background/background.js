@@ -217,7 +217,11 @@ chrome.runtime.onMessage.addListener(async (message) => {
     });
     return;
   } else if (message.type === "tab-id") {
-    tabId = message.tabId;
+    // when start recording the instance would be in that specific tabId in memory, so need to call the same tabId when stop recording also
+    if (!isRecording) {
+      tabId = message.tabId;
+      console.log("set tab Id:", tabId);
+    }
   } else if (message.type === "is-in-meeting-to-background") {
     isInMeeting = message.isInMeeting;
   }

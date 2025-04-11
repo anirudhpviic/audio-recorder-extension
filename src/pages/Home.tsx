@@ -69,16 +69,6 @@ const Home = () => {
     observer.current.observe(target);
   }, [moMs]);
 
-  useEffect(() => {
-    // send to background script
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.runtime.sendMessage({
-        type: "tab-id",
-        tabId: tabs[0].id,
-      });
-    });
-  }, []);
-
   return (
     <div className="h-[600px] w-[500px] flex flex-col pt-16">
       <Toaster />

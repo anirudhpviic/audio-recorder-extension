@@ -100,9 +100,7 @@ async function sendToServer() {
   formData.append("meetId", meetId);
 
   try {
-    console.log("sending to server");
     await api.post("/mom", formData);
-    console.log("returned from server");
     // to popup
     chrome.runtime.sendMessage({
       type: "audio-uploaded",
@@ -220,7 +218,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
     // when start recording the instance would be in that specific tabId in memory, so need to call the same tabId when stop recording also
     if (!isRecording) {
       tabId = message.tabId;
-      console.log("set tab Id:", tabId);
     }
   } else if (message.type === "is-in-meeting-to-background") {
     isInMeeting = message.isInMeeting;
@@ -229,8 +226,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
 
 async function startOrStopRecording2() {
   if (isRecording) {
-    console.log("recording stop");
-    console.log("tabId", tabId);
     // stop-recording
     chrome.tabs.sendMessage(tabId, {
       action: "mic2-recording-stop",
@@ -244,8 +239,6 @@ async function startOrStopRecording2() {
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
   } else if (!isRecording) {
-    console.log("recording start");
-    console.log("tabId", tabId);
     // start-recording
     chrome.tabs.sendMessage(tabId, {
       action: "mic-two-recording-start",
@@ -266,7 +259,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "mic-record-start-or-stop") {
     await startOrStopRecording2();
   } else if (message.type === "mic2-recording-stopped") {
-    console.log("Received mic2-recording-stopped message", message);
     await sendToServer2(message.data);
   } else if (message.type === "PAGE_RELOAD") {
     if (!isRecording || !tabId || isInMeeting) {
@@ -316,11 +308,8 @@ async function sendToServer2(micBuffer) {
   formData.append("meetId", meetId);
 
   try {
-    console.log("sending to server");
-    // await api.post("/mom", formData);
     await api.post("/mom/upload-files", formData);
 
-    console.log("returned from server");
     // to popup
     chrome.runtime.sendMessage({
       type: "audio-uploaded",

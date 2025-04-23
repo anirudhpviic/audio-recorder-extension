@@ -28,7 +28,7 @@ const Home = () => {
         setIsLoading(false);
       }
     } catch (error) {
-      console.log("Error fetching MoMs:", error);
+      console.error("Error fetching MoMs:", error);
     }
   };
 

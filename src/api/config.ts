@@ -50,7 +50,6 @@ api.interceptors.response.use(
       } catch (refreshError) {
         console.error("Refresh token expired, logging out");
         chrome.storage.local.clear(() => {
-          console.log("Cleared local storage");
           window.location.hash = "#/login";
         });
       }

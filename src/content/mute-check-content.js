@@ -11,8 +11,6 @@ document.addEventListener("click", (event) => {
       .getAttribute("aria-label")
       .includes("Turn off microphone");
 
-    console.log("isMuted click:", isMuted);
-
     // Send mute status to the background script
     chrome.runtime.sendMessage({
       type: "MIC_STATUS",
@@ -30,8 +28,6 @@ const checkMicStatus = () => {
     isMuted = muteButton
       .getAttribute("aria-label")
       .includes("Turn on microphone");
-
-    console.log("isMuted initial:", isMuted);
 
     chrome.runtime.sendMessage({
       type: "MIC_STATUS",

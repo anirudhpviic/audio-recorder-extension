@@ -36,7 +36,6 @@ async function startRecording() {
 
     // Start recording
     mediaRecorder.start();
-    console.log("Mic2 Recording started...");
   } catch (error) {
     console.error("Error starting recording:", error);
   }
@@ -57,7 +56,6 @@ async function stopRecording() {
         // Clear the recorded chunks for the next recording
         recordedChunks = [];
 
-        console.log("Mic2 Recording stopped...");
         resolve(audioBlob);
       };
 
@@ -72,7 +70,7 @@ async function stopRecording() {
 // Example usage
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "mic-two-recording-start") {
-    console.log("start recording mic2-content")
+    console.log("start recording mic2-content");
     await startRecording();
   } else if (request.action === "mic2-recording-stop") {
     try {

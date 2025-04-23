@@ -73,7 +73,6 @@ const MeetRecorder = () => {
       if (message.type === "return-recording-status") {
         setIsRecording(message.isRecording);
         setRecordingTime(message.recordingTime);
-        console.log("isRecording", message);
       }
 
       // from meet content script

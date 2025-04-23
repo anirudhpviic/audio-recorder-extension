@@ -134,6 +134,14 @@ const MeetRecorder = () => {
       }
     }
 
+    // send to background script
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.runtime.sendMessage({
+        type: "tab-id",
+        tabId: tabs[0].id,
+      });
+    });
+
     return () => {
       if (recordingInterval.current) {
         clearInterval(recordingInterval.current);
@@ -147,16 +155,6 @@ const MeetRecorder = () => {
       chrome.runtime.sendMessage({ type: "set-meeting-id", data: meetId });
     });
   }, [meetId]);
-
-  useEffect(() => {
-    // send to background script
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.runtime.sendMessage({
-        type: "tab-id",
-        tabId: tabs[0].id,
-      });
-    });
-  }, [isRecording]);
 
   return (
     <div className={`flex flex-1 items-center justify-between p-3 bg-white`}>

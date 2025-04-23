@@ -10,6 +10,7 @@ const MeetRecorder = () => {
   const [isInputDisable, setIsInputDisable] = useState(true);
   const recordingInterval = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isValidUrl, setIsValidUrl] = useState(false);
 
   // record start or stop
   const handleClick = async () => {
@@ -156,8 +157,33 @@ const MeetRecorder = () => {
     });
   }, [meetId]);
 
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const currentTab = tabs[0];
+      const currentUrl = currentTab?.url;
+
+      if (!currentUrl) {
+        setIsValidUrl(false);
+      }
+
+      if (
+        currentUrl?.startsWith("chrome://") ||
+        currentUrl?.startsWith("chrome-extension://")
+      ) {
+        setIsValidUrl(false);
+      } else {
+        setIsValidUrl(true);
+      }
+    });
+  }, []);
+
   return (
-    <div className={`flex flex-1 items-center justify-between p-3 bg-white`}>
+    <div
+      className={`flex flex-1 items-center justify-between p-3 bg-white  ${
+        !isValidUrl ? "pointer-events-none opacity-25" : ""
+      }`}
+      aria-disabled={!isValidUrl}
+    >
       <div className="flex items-center">
         <div className="flex mr-2">
           <svg

@@ -72,7 +72,15 @@ const MeetRecorder = () => {
       // from background script
       if (message.type === "return-recording-status") {
         setIsRecording(message.isRecording);
-        setRecordingTime(message.recordingTime);
+        if (message.recordStartTime) {
+          const time = Math.floor(
+            (new Date().getTime() - message.recordStartTime) / 1000
+          );
+
+          setRecordingTime(time);
+        } else {
+          setRecordingTime(0);
+        }
       }
 
       // from meet content script

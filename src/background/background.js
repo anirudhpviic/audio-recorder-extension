@@ -9,8 +9,7 @@ let tabId;
 let isMuted = true;
 
 let isRecording = false;
-let recordingTime = 0;
-let recordingInterval;
+let recordStartTime = null;
 
 let meetId = null;
 let isInMeeting = false;
@@ -43,8 +42,7 @@ const startOrStopRecording = async () => {
 
     isRecording = false;
 
-    clearInterval(recordingInterval);
-    recordingTime = 0;
+    recordStartTime = null;
 
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
@@ -68,9 +66,7 @@ const startOrStopRecording = async () => {
 
   isRecording = true;
 
-  recordingInterval = setInterval(() => {
-    recordingTime += 1;
-  }, 1000);
+  recordStartTime = new Date().getTime()
 
   chrome.action.setIcon({ path: "icons/recording.png" });
 };
@@ -153,7 +149,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
     chrome.runtime.sendMessage({
       type: "return-recording-status",
       isRecording,
-      recordingTime,
+      recordStartTime,
     });
   } else if (message.type === "set-meeting-id") {
     meetId = message.data;
@@ -233,8 +229,7 @@ async function startOrStopRecording2() {
 
     isRecording = false;
 
-    clearInterval(recordingInterval);
-    recordingTime = 0;
+    recordStartTime = null;
 
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
@@ -246,9 +241,7 @@ async function startOrStopRecording2() {
 
     isRecording = true;
 
-    recordingInterval = setInterval(() => {
-      recordingTime += 1;
-    }, 1000);
+    recordStartTime = new Date().getTime()
 
     chrome.action.setIcon({ path: "icons/recording.png" });
     return;

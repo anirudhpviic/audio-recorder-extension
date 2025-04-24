@@ -6,12 +6,12 @@ const MeetRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [meetId, setMeetId] = useState("");
-  const [isInMeeting, setIsInMeeting] = useState(false);
   const [isInputDisable, setIsInputDisable] = useState(true);
   const recordingInterval = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidUrl, setIsValidUrl] = useState(false);
   const [recordType, setRecordType] = useState<any>(null);
+  const isInMeetingRef = useRef<any>(null);
 
   // record start or stop
   const handleClick = async () => {
@@ -19,6 +19,7 @@ const MeetRecorder = () => {
 
     if (!isRecording) {
       setRecordingTime(0);
+      setRecordType("mic-tab");
     }
 
     if (isRecording) {
@@ -39,6 +40,7 @@ const MeetRecorder = () => {
 
     if (!isRecording) {
       setRecordingTime(0);
+      setRecordType("mic2");
     }
 
     if (isRecording) {
@@ -55,13 +57,13 @@ const MeetRecorder = () => {
   };
 
   const handleRecording = () => {
-    if (isInMeeting && recordType === "mic2") {
+    if (isInMeetingRef.current && recordType === "mic2") {
       handleMicClick();
-    } else if (isInMeeting) {
+    } else if (isInMeetingRef.current) {
       handleClick();
-    } else if (!isInMeeting && recordType === "mic-tab") {
+    } else if (!isInMeetingRef.current && recordType === "mic-tab") {
       handleClick();
-    } else if (!isInMeeting) {
+    } else if (!isInMeetingRef.current) {
       handleMicClick();
     }
   };
@@ -119,7 +121,7 @@ const MeetRecorder = () => {
 
       // from meet content script
       if (message.type === "return-is-in-meeting") {
-        setIsInMeeting(message.data);
+        isInMeetingRef.current = message.data;
         // send to background script
         chrome.tabs.query({ active: true, currentWindow: true }, () => {
           chrome.runtime.sendMessage({

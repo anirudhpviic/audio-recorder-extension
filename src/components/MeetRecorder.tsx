@@ -54,6 +54,31 @@ const MeetRecorder = () => {
     });
   };
 
+  const handleRecording = () => {
+    if (isInMeeting && recordType === "mic2") {
+      handleMicClick();
+    } else if (isInMeeting) {
+      handleClick();
+    } else if (!isInMeeting && recordType === "mic-tab") {
+      handleClick();
+    } else if (!isInMeeting) {
+      handleMicClick();
+    }
+  };
+
+  const handleAskMicPermission = async () => {
+    if (isRecording) {
+      handleRecording();
+      return;
+    }
+
+    // send to meet content script
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      // @ts-ignore
+      chrome.tabs.sendMessage(tabs[0].id, { action: "ASK_MIC_PERMISSION" });
+    });
+  };
+
   useEffect(() => {
     // send to background script
     chrome.tabs.query({ active: true, currentWindow: true }, () => {
@@ -71,7 +96,7 @@ const MeetRecorder = () => {
       chrome.runtime.sendMessage({ type: "get-stored-meeting-id" });
     });
 
-    const handleMessage = (message: any) => {
+    const handleMessage = async (message: any) => {
       // from background script
       if (message.type === "return-recording-status") {
         setIsRecording(message.isRecording);
@@ -124,6 +149,22 @@ const MeetRecorder = () => {
           duration: 5000,
           position: "bottom-center",
         });
+      }
+
+      // from mic-permission content script
+      if (message.type === "RETURN_ASK_MIC_PERMISSION") {
+        if (!message.status) {
+          toast.error(
+            "You must allow access to your microphone to record audio.",
+            {
+              duration: 5000,
+              position: "bottom-center",
+            }
+          );
+          return;
+        }
+
+        handleRecording();
       }
     };
 
@@ -251,15 +292,7 @@ const MeetRecorder = () => {
         <button
           disabled={isLoading}
           onClick={() => {
-            if (isInMeeting && recordType === "mic2") {
-              handleMicClick();
-            } else if (isInMeeting) {
-              handleClick();
-            } else if (!isInMeeting && recordType === "mic-tab") {
-              handleClick();
-            } else if (!isInMeeting) {
-              handleMicClick();
-            }
+            handleAskMicPermission();
           }}
           className="p-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100"
         >

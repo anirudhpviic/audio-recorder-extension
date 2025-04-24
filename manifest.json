@@ -32,7 +32,8 @@
         "src/content/meet-start-check-content.js",
         "src/content/meet-end-check-content.js",
         "src/content/mic2-content.js",
-        "src/content/load-page.content.js"
+        "src/content/load-page.content.js",
+        "src/content/mic-permission.js"
       ]
     }
   ]

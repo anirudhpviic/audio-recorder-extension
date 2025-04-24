@@ -11,6 +11,7 @@ const MeetRecorder = () => {
   const recordingInterval = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidUrl, setIsValidUrl] = useState(false);
+  const [recordType, setRecordType] = useState<any>(null);
 
   // record start or stop
   const handleClick = async () => {
@@ -22,6 +23,7 @@ const MeetRecorder = () => {
 
     if (isRecording) {
       setIsLoading(true);
+      setRecordType(null);
     }
 
     // send to background script
@@ -41,6 +43,7 @@ const MeetRecorder = () => {
 
     if (isRecording) {
       setIsLoading(true);
+      setRecordType(null);
     }
 
     // send to background script
@@ -72,6 +75,7 @@ const MeetRecorder = () => {
       // from background script
       if (message.type === "return-recording-status") {
         setIsRecording(message.isRecording);
+        setRecordType(message.recordType);
         if (message.recordStartTime) {
           const time = Math.floor(
             (new Date().getTime() - message.recordStartTime) / 1000
@@ -246,7 +250,17 @@ const MeetRecorder = () => {
 
         <button
           disabled={isLoading}
-          onClick={isInMeeting ? handleClick : handleMicClick}
+          onClick={() => {
+            if (isInMeeting && recordType === "mic2") {
+              handleMicClick();
+            } else if (isInMeeting) {
+              handleClick();
+            } else if (!isInMeeting && recordType === "mic-tab") {
+              handleClick();
+            } else if (!isInMeeting) {
+              handleMicClick();
+            }
+          }}
           className="p-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100"
         >
           <div className="flex items-center justify-center w-6 h-6">

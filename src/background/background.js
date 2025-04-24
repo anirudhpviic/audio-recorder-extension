@@ -14,6 +14,8 @@ let recordStartTime = null;
 let meetId = null;
 let isInMeeting = false;
 
+let recordType = null;
+
 const startOrStopRecording = async () => {
   const existingContexts = await chrome.runtime.getContexts({});
   let recording = false;
@@ -41,8 +43,8 @@ const startOrStopRecording = async () => {
     });
 
     isRecording = false;
-
     recordStartTime = null;
+    recordType = null;
 
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
@@ -65,8 +67,8 @@ const startOrStopRecording = async () => {
   });
 
   isRecording = true;
-
-  recordStartTime = new Date().getTime()
+  recordStartTime = new Date().getTime();
+  recordType = 'mic-tab'
 
   chrome.action.setIcon({ path: "icons/recording.png" });
 };
@@ -150,6 +152,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       type: "return-recording-status",
       isRecording,
       recordStartTime,
+      recordType
     });
   } else if (message.type === "set-meeting-id") {
     meetId = message.data;
@@ -176,25 +179,25 @@ chrome.runtime.onMessage.addListener(async (message) => {
       type: "basic",
       iconUrl: "icons/recording.png",
       title: "Meeting Started",
-      message: "Click here to start recording.",
+      message: "Please start recording.",
       priority: 2,
     });
 
     // handle click on the notification to start recording
-    chrome.notifications.onClicked.addListener(async () => {
-      if (!tabId) {
-        chrome.notifications.create({
-          type: "basic",
-          iconUrl: "icons/recording.png",
-          title: "Error",
-          message: "Please open popup.",
-          priority: 2,
-        });
-        return;
-      }
-      await startOrStopRecording();
-      isInMeeting = true;
-    });
+    // chrome.notifications.onClicked.addListener(async () => {
+    //   if (!tabId) {
+    //     chrome.notifications.create({
+    //       type: "basic",
+    //       iconUrl: "icons/recording.png",
+    //       title: "Error",
+    //       message: "Please open popup.",
+    //       priority: 2,
+    //     });
+    //     return;
+    //   }
+    //   await startOrStopRecording();
+    //   isInMeeting = true;
+    // });
   } else if (message.type === "USER_LEFT_MEET") {
     if (!isRecording || !tabId || !isInMeeting) {
       return;
@@ -214,6 +217,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
     // when start recording the instance would be in that specific tabId in memory, so need to call the same tabId when stop recording also
     if (!isRecording) {
       tabId = message.tabId;
+      console.log("set tab id", tabId);
     }
   } else if (message.type === "is-in-meeting-to-background") {
     isInMeeting = message.isInMeeting;
@@ -228,8 +232,8 @@ async function startOrStopRecording2() {
     });
 
     isRecording = false;
-
     recordStartTime = null;
+    recordType = null
 
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
@@ -240,8 +244,8 @@ async function startOrStopRecording2() {
     });
 
     isRecording = true;
-
-    recordStartTime = new Date().getTime()
+    recordStartTime = new Date().getTime();
+    recordType = 'mic2'
 
     chrome.action.setIcon({ path: "icons/recording.png" });
     return;

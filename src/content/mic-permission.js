@@ -4,10 +4,24 @@ let audioChunks = [];
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === "ASK_MIC_PERMISSION") {
     try {
-      // Ask for mic access
+      // Check mic permission status first
+      const permissionStatus = await navigator.permissions.query({
+        name: "microphone",
+      });
+
+      if (permissionStatus.state === "granted") {
+        console.log("Microphone permission already granted.");
+        // Already granted, return success
+        chrome.runtime.sendMessage({
+          type: "RETURN_ASK_MIC_PERMISSION",
+          status: true,
+        });
+        return true;
+      }
+
+      // Ask for mic access if not granted
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      // Setup recorder
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
 
@@ -17,12 +31,16 @@ chrome.runtime.onMessage.addListener(async (message) => {
         }
       };
 
+      console.log("Microphone permission granted;");
       chrome.runtime.sendMessage({
         type: "RETURN_ASK_MIC_PERMISSION",
         status: true,
       });
+      return true;
     } catch (error) {
-      console.error("Mic permission denied or error:", error);
+      console.error(
+        `Mic permission denied or error: ${error.message || error}`
+      );
 
       chrome.runtime.sendMessage({
         type: "RETURN_ASK_MIC_PERMISSION",

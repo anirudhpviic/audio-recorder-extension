@@ -68,7 +68,7 @@ const startOrStopRecording = async () => {
 
   isRecording = true;
   recordStartTime = new Date().getTime();
-  recordType = 'mic-tab'
+  recordType = "mic-tab";
 
   chrome.action.setIcon({ path: "icons/recording.png" });
 };
@@ -152,7 +152,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       type: "return-recording-status",
       isRecording,
       recordStartTime,
-      recordType
+      recordType,
     });
   } else if (message.type === "set-meeting-id") {
     meetId = message.data;
@@ -233,23 +233,22 @@ async function startOrStopRecording2() {
 
     isRecording = false;
     recordStartTime = null;
-    recordType = null
+    recordType = null;
 
     chrome.action.setIcon({ path: "icons/not-recording.png" });
     return;
-  } else if (!isRecording) {
-    // start-recording
-    chrome.tabs.sendMessage(tabId, {
-      action: "mic-two-recording-start",
-    });
-
-    isRecording = true;
-    recordStartTime = new Date().getTime();
-    recordType = 'mic2'
-
-    chrome.action.setIcon({ path: "icons/recording.png" });
-    return;
   }
+  // start-recording
+  chrome.tabs.sendMessage(tabId, {
+    action: "mic-two-recording-start",
+  });
+
+  isRecording = true;
+  recordStartTime = new Date().getTime();
+  recordType = "mic2";
+
+  chrome.action.setIcon({ path: "icons/recording.png" });
+  return;
 }
 
 chrome.runtime.onMessage.addListener(async (message) => {

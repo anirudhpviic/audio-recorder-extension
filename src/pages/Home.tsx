@@ -3,6 +3,7 @@ import NavBar from "../components/NavBar";
 import api from "../api/config";
 import { Toaster } from "react-hot-toast";
 import MoMViewer from "../components/MomViewer";
+import PopupInput from "../components/PopupInput";
 
 const Home = () => {
   const [moMs, setMoMs] = useState<any>([]);
@@ -10,8 +11,13 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [totalCounts, setTotalCounts] = useState(0);
   const [page, setPage] = useState(1);
+  const [showNameInputPopup, setShowNameInputPopup] = useState(false);
   const observer = useRef<any>(null);
   const limit = 10; // Number of items to fetch per request
+
+  const handleTogglePopup = () => {
+    setShowNameInputPopup(!showNameInputPopup);
+  };
 
   const fetchMoMs = async () => {
     try {
@@ -72,7 +78,8 @@ const Home = () => {
   return (
     <div className="h-[600px] w-[500px] flex flex-col pt-16">
       <Toaster />
-      <NavBar isRefreshing={isRefreshing} setIsRefreshing={setIsRefreshing} />
+      {showNameInputPopup && <PopupInput onClose={handleTogglePopup} />}
+      <NavBar isRefreshing={isRefreshing} setIsRefreshing={setIsRefreshing} handleToggleNameInputPopup={handleTogglePopup}  />
       <MoMViewer
         moMs={moMs}
         setMoMs={setMoMs}
